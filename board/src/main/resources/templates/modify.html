@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form th:action="@{/update/{board_id}">
+  <input type="text" id="board_title"th:text="${board.board_title}">
+  <input type="text" id="board_writer" th:text="${board.board_writer}">
+  <textarea type="text" id="board_content" th:value="${board.board_content}"></textarea>
+</form>
+</body>
+</html>
