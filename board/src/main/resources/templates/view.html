@@ -5,8 +5,11 @@
     <title>Title</title>
 </head>
 <body>
-    <h1 th:text="${board.board_id}"></h1>
+    <h1 th:text="${board.board_title}"></h1>
+    <p th:text="${board.board_writer}"></p>
     <p th:text="${board.board_content}"></p>
+    <p th:text="${board.board_write_date}"></p>
+    <p th:text="${board.board_modify_date}"></p>
     <a th:href="@{/delete(board_id=${board.board_id})}">삭제</a>
     <a th:href="@{/modify/{board_id}(board_id=${board.board_id})}">수정</a>
 </body>

@@ -11,21 +11,23 @@
         <th>글번호</th>
         <th>글제목</th>
         <th>작성자</th>
-        <th>작성일시</th>
+        <th>작성날짜</th>
+        <th>수정날짜</th>
     </tr>
     </thead>
 
     <tbody>
-    <tr th:each="board:${board}">
-    <td th:text="${board.board_id}">1</td>
-        <td>
-            <a th:href="@{/list/{board_id}(board_id=${board.board_id})}" th:text="${board.board_title}">제목</a>
-        </td>
-        <td th:text="${board.board_writer}">작성자</td>
-        <td th:text="${board.board_write_date}">작성날짜</td>
-        <td th:text="${board.board_modify_date}">수정날짜</td>
-    </tr>
+        <tr th:each="board:${board}">
+            <td th:text="${board.board_id}">1</td>
+            <td>
+                <a th:href="@{/list/{board_id}(board_id=${board.board_id})}" th:text="${board.board_title}">제목</a>
+            </td>
+            <td th:text="${board.board_writer}">작성자</td>
+            <td th:text="${board.board_write_date}">작성날짜</td>
+            <td th:text="${board.board_modify_date}">수정날짜</td>
+        </tr>
     </tbody>
 </table>
+
 </body>
 </html>

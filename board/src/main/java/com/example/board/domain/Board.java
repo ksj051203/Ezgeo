@@ -2,28 +2,22 @@ package com.example.board.domain;
 
 import javax.persistence.*;
 
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
+@Data
 @Table(name="board")
-public class Board {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer board_id;
-    @Column
-    private String board_title;
-    @Column
-    private String board_content;
-    @Column
-    private String board_writer;
-    @Column
-    private Timestamp board_write_date;
-    @Column
-    private Timestamp board_modify_date;
-
+public class Board extends BaseTime{
     public Integer getBoard_id() {
         return board_id;
     }
@@ -56,19 +50,20 @@ public class Board {
         this.board_writer = board_writer;
     }
 
-    public Timestamp getBoard_write_date() {
-        return board_write_date;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer board_id;
+    @Column
+    private String board_title;
+    @Column
+    private String board_content;
+    @Column
+    private String board_writer;
+
+    public void update(BoardDto boardDto){
+//        this.board_title = boardDto.getBoard_title();
+//        this.board_writer = boardDto.getBoard_writer();
+//        this.board_content = boardDto.getBoard_content();
     }
 
-    public void setBoard_write_date(Timestamp board_write_date) {
-        this.board_write_date = board_write_date;
-    }
-
-    public Timestamp getBoard_modify_date() {
-        return board_modify_date;
-    }
-
-    public void setBoard_modify_date(Timestamp board_modify_date) {
-        this.board_modify_date = board_modify_date;
-    }
 }

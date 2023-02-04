@@ -1,17 +1,15 @@
 package com.example.board.controller;
 
 import com.example.board.domain.Board;
+import com.example.board.domain.BoardDto;
 import com.example.board.service.BoardService;
-import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import java.awt.print.Pageable;
-import java.util.List;
 
 
 @Controller
@@ -31,12 +29,12 @@ public class BoardController {
     @PostMapping("/createSuccess")
     public String createSuccess(Board board){
         boardService.createFinish(board);
-        return "createSuccess";
+        return "redirect:/list";
     }
 
     @GetMapping("/list")
-    public String findAllBoard(Model model){
-        model.addAttribute("board", boardService.findAllBoard());
+    public String findAllBoard(){
+        boardService.findAllBoard();
         return "list";
     }
 
@@ -47,8 +45,21 @@ public class BoardController {
     };
 
     @GetMapping ("/delete")
-    public void deleteBoard(Integer board_id){
+    public String deleteBoard(Integer board_id){
         boardService.deleteBoard(board_id);
+        return "redirect:/list";
     };
 
+    @GetMapping("/modify/{board_id}")
+    public String modifyBoard(@PathVariable("board_id") Integer board_id, Model model){
+        Board board = boardService.findBoard(board_id);
+        model.addAttribute("board", board);
+        return "modify";
+    }
+
+    @PostMapping("/update/{board_id}")
+    public String updateBoard(@PathVariable("board_id") Integer board_id, BoardDto boardDto){
+        boardService.update(board_id, boardDto);
+        return "redirect:/list";
+    };
 }
