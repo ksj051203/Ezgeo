@@ -1,15 +1,19 @@
 package com.example.board.controller;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import com.example.board.domain.Board;
 import com.example.board.domain.BoardDto;
 import com.example.board.service.BoardService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import javax.persistence.EntityManager;
 
 
 @Controller
@@ -33,8 +37,15 @@ public class BoardController {
     }
 
     @GetMapping("/list")
-    public String findAllBoard(){
-        boardService.findAllBoard();
+    public String findAllBoard(Model model){
+        Page<Board> board = boardService.findAllBoard();
+        model.addAttribute("board", board);
+        return "list";
+    }
+
+    @GetMapping("/list_new")
+    public String getList(Model model, Board board, EntityManager em){
+        model.addAttribute("board", boardService.makePaging(board, em));
         return "list";
     }
 

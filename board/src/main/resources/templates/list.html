@@ -25,9 +25,15 @@
             <td th:text="${board.board_writer}">작성자</td>
             <td th:text="${board.board_write_date}">작성날짜</td>
             <td th:text="${board.board_modify_date}">수정날짜</td>
+            board.get("makePaging")
         </tr>
     </tbody>
 </table>
 
+<!--<ul>-->
+<!--    <li th:each="page: ${#numbers.sequence(0, totalPage)}">-->
+<!--        <ul th:href="@{/list(nowPage=${nowPage})}" th:text="${page}"></ul>-->
+<!--    </li>-->
+<!--</ul>-->
 </body>
 </html>
