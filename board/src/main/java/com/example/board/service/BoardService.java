@@ -1,16 +1,13 @@
 package com.example.board.service;
 
-
 import com.example.board.domain.Board;
 import com.example.board.domain.BoardDto;
 import com.example.board.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +16,11 @@ import java.util.Map;
 public class BoardService {
     @Autowired
     public BoardRepository boardRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private final int tabSize=5;
+    //하단의 tabSize를 5로 고침
 
     public BoardService(BoardRepository boardRepository) {
         this.boardRepository = boardRepository;
@@ -39,46 +41,61 @@ public class BoardService {
         boardRepository.save(update);
     }
 
-    public Map<String, Object> makePaging(Board board, EntityManager em){
+    public Map<String, Object> makePaging(Integer nowPage){
         Map<String, Object> rtnMap = new HashMap<String, Object>();
-            List<Board> getList = em.createQuery("select m from Board as m order by m.board_id", Board.class)
-                    .setFirstResult(0)
-                    .setMaxResults(10)
-                    .getResultList();
-//        // 게시판 레코드 10개 가져오는 로직
-        
-//            Pageable makePaging = PageRequest.of(0,5);
-//            Page<Board> page = boardRepository.findAll(makePaging);
-////        // 하단 페이지네이션 만들어주는 로직
-////        makePaging;
-//        int tabSize = 5;  //한 페이지 당 보일 개수
-//        int element = "select count(1) as cnt from Board"; // 전체 데이터 수 : 100
-//
-//        int totalPage = 0; // 전체 페이지
-//        if(element%10 == 0){
-//            totalPage = element/10;
-//        }
-//        else{
-//            totalPage = (element/10)+1; //list.getTotalPages(); 총 페이지 수 : 10개
-//        }
-//
-//        int nowPage = board.getPageable().getPageNumber() + 1; // 현재 페이지 0부터 시작
+        int target = (nowPage-1) * 10;
+
+        // 게시판 레코드 10개 가져오는 로직
+        List<Board> getList = entityManager.createQuery("select m from Board as m order by m.board_id", Board.class)
+                .setFirstResult(target)
+                .setMaxResults(10)
+                .getResultList();
+
+        int record = Integer.valueOf(entityManager.createQuery("select count(*) as TTT from Board").getResultList().get(0).toString());
+        int totalPage = (record/10) + ((record % 10) > 0 ? 1 : 0 );
+//      if((record % 10) == 0) totalPage = record/10;
+//      else totalPage = (record/10)+1;
+
 //        int endPage = nowPage * 10; // 끝 페이지
 //        int startPage = endPage - 10 + 1; //시작 페이지
-//
-//        int pagenation = 0; // 몇번째 페이지네이션인지
-//
-//        if(board.getNumber()%tabSize == 0){
-//            pagenation = board.getNumber()/tabSize;
-//        }else {
-//            pagenation = board.getNumber()/tabSize + 1;
-//        }
-//        rtnMap.put("getList", "getList");
-//        rtnMap.put("makePaging", "makePaging");
+//        System.out.println("startPage" + startPage);
 
+        int pagenation = 0; // 몇번째 페이지네이션인지
+        if(nowPage%tabSize == 0){
+            pagenation = nowPage/tabSize;
+        }else {
+            pagenation = nowPage/tabSize + 1;
+        }
+
+        int endTabSize = pagenation * tabSize -1;
+        int startTabSize = endTabSize - tabSize + 1;
+        System.out.println(endTabSize);
+        System.out.println(startTabSize);
+        //pagenation = pagenation * tabSize;
+
+        String makePagingg = "";
+
+        makePagingg += "<a href='/list_new?nowPage=1'> <<< </a>"; //맨처음
+        makePagingg += "<a href='/list_new?nowPage=" +(startTabSize+1 - tabSize )+ "'>" + "<<" + " </a>";   // 이전 사이클
+        makePagingg += "<a href='/list_new?nowPage=" + (nowPage-1) + "'> " +"<"+ " </a>";
+
+        int[] makePaging = new int[5];
+        int makePagingSize = pagenation + makePaging.length;
+        for(int i = startTabSize; i <= endTabSize; i++) {
+            makePagingg += "<a href='/list_new?nowPage=" + (i+1) + "'> " +  (i+1) + " </a>";
+        }
+
+        makePagingg += "<a href='/list_new?nowPage=" + (nowPage+1) + "'> > </a>";
+        makePagingg += "<a href='/list_new?nowPage=" +  (startTabSize+1+ tabSize)+ "'> >> </a>";
+        makePagingg += "<a href='/list_new?nowPage=" + totalPage + "'> >>> " +"</a>";
+
+
+        rtnMap.put("getList", getList);
+        rtnMap.put("makePaging", makePaging);
+        rtnMap.put("makePagingg", makePagingg);
         return rtnMap;
     }
-    public Page<Board> findAllBoard(){
+    public List<Board> findAllBoard(){
         return boardRepository.findAll();
     }
 

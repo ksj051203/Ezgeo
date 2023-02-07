@@ -17,7 +17,7 @@
     </thead>
 
     <tbody>
-        <tr th:each="board:${board}">
+        <tr th:each="board:${board['getList']}">
             <td th:text="${board.board_id}">1</td>
             <td>
                 <a th:href="@{/list/{board_id}(board_id=${board.board_id})}" th:text="${board.board_title}">제목</a>
@@ -25,15 +25,11 @@
             <td th:text="${board.board_writer}">작성자</td>
             <td th:text="${board.board_write_date}">작성날짜</td>
             <td th:text="${board.board_modify_date}">수정날짜</td>
-            board.get("makePaging")
+
         </tr>
     </tbody>
 </table>
+<div class="content" th:utext="${board['makePagingg']}" />
 
-<!--<ul>-->
-<!--    <li th:each="page: ${#numbers.sequence(0, totalPage)}">-->
-<!--        <ul th:href="@{/list(nowPage=${nowPage})}" th:text="${page}"></ul>-->
-<!--    </li>-->
-<!--</ul>-->
 </body>
 </html>

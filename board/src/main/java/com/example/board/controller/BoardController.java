@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
 
 @Controller
@@ -38,14 +39,14 @@ public class BoardController {
 
     @GetMapping("/list")
     public String findAllBoard(Model model){
-        Page<Board> board = boardService.findAllBoard();
+        List<Board> board = boardService.findAllBoard();
         model.addAttribute("board", board);
         return "list";
     }
 
     @GetMapping("/list_new")
-    public String getList(Model model, Board board, EntityManager em){
-        model.addAttribute("board", boardService.makePaging(board, em));
+    public String getList(@RequestParam("nowPage") Integer nowPage, Model model){
+        model.addAttribute("board", boardService.makePaging(nowPage));
         return "list";
     }
 
