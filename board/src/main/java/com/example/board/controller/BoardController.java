@@ -1,21 +1,10 @@
 package com.example.board.controller;
-
-import ch.qos.logback.core.net.SyslogOutputStream;
 import com.example.board.domain.Board;
 import com.example.board.domain.BoardDto;
 import com.example.board.service.BoardService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import javax.persistence.EntityManager;
-import java.util.List;
-
 
 @Controller
 public class BoardController {
@@ -38,15 +27,8 @@ public class BoardController {
     }
 
     @GetMapping("/list")
-    public String findAllBoard(Model model){
-        List<Board> board = boardService.findAllBoard();
-        model.addAttribute("board", board);
-        return "list";
-    }
-
-    @GetMapping("/list_new")
-    public String getList(@RequestParam("nowPage") Integer nowPage, Model model){
-        model.addAttribute("board", boardService.makePaging(nowPage));
+    public String pagingBoard(@RequestParam(value = "nowPage", defaultValue = "1") Integer nowPage, Model model){
+        model.addAttribute("board", boardService.pagingBoard(nowPage));
         return "list";
     }
 

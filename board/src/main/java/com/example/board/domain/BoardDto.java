@@ -1,8 +1,6 @@
 package com.example.board.domain;
 
 import lombok.*;
-
-import javax.persistence.Column;
 import java.time.LocalDateTime;
 
 @Getter
