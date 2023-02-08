@@ -58,6 +58,8 @@ public class BoardService {
 
         int totalPage = (allRecordCnt/RECORD_LENGTH) + ((allRecordCnt%RECORD_LENGTH>0)? 1: 0); //전체 페이지
 
+        int lastPagination = (totalPage/TAB_SIZE) + ((totalPage%TAB_SIZE>0)? 1:0); // 마지막 페이지네이션
+
         int pagination = (nowPage/TAB_SIZE) + ((nowPage%TAB_SIZE>0)? 1: 0); // 몇번째 페이지네이션인지
 
         int endPage =  pagination * TAB_SIZE -1; //끝 페이지
@@ -65,10 +67,17 @@ public class BoardService {
 
         String paging = "";
 
-        paging += "<a href='list?nowPage=1'> <<< </a>"; //맨 처음으로
+        paging += "<a href='list?nowPage=1"+ " ' "+((nowPage==1)? "style='display:none'":"") +"> <<< </a>" ; // 맨 처음페이지
+//          if(nowPage != 1) paging += "<a href='list? nowPage=1'> <<< </a>";
+//          else paging += "<a href='list?nowPage=1' style='display:none'> <<< </a>";
 
-        paging += "<a href='list?nowPage=" + (startPage-4)+ "'> << </a>"; // 이전 사이클 첫번째 페이지
-        paging += "<a href='list?nowPage=" + (nowPage -1) + "'> < </a>"; // 이전 페이지
+        paging += "<a href='list?nowPage=" + (startPage-4) + " ' " + ((pagination==1)? "style='display:none'":"") + "> << </a>"; // 이전 사이클 첫페이지
+//          if(nowPage==1) paging += "<a href='/list?nowPage=" +(startPage-4) +"' style='display:none'> << </a>";
+//          else paging += "<a href='list?nowPage=" + (startPage-4)+ "'> << </a>";
+
+        paging += "<a href='list?nowPage=" + (nowPage-1) + " ' " + ((nowPage==1)? "style='display:none'":"") + "> < </a>"; // 이전 페이지
+//          if(nowPage==1) paging += "<a href='list?nowPage=" + (nowPage -1) + "' style='display:none'> < </a>";
+//          else paging += "<a href='list?nowPage=" + (nowPage -1) + "'> < </a>";
 
 
         for(int i=startPage; i<=endPage; i++){
@@ -78,9 +87,10 @@ public class BoardService {
 //            else paging += "<a href='/list?nowPage=" + (i+1) + "' > " +  (i+1) + " </a>"; // 페이지 표시
         }
 
-        paging += "<a href='/list?nowPage=" + (nowPage+1) + "'> ></a>"; // 다음 페이지
-        paging += "<a href='/list?nowPage=" +  (startPage+1+TAB_SIZE)+ "'> >> </a>"; // 다음 사이클 첫번째 페이지
-        paging += "<a href='/list?nowPage=" + totalPage + "'> >>> " +"</a>"; //맨 끝으로
+
+        paging += "<a href='/list?nowPage=" + (nowPage+1) + " ' " + ((nowPage==totalPage)? "style='display:none'": "")+ "> ></a>"; // 다음 페이지
+        paging += "<a href='/list?nowPage=" +  (startPage+1+TAB_SIZE)+ " ' " + ((pagination==lastPagination)? "style='display:none'": "") + "> >> </a>"; // 다음 사이클 첫번째 페이지
+        paging += "<a href='/list?nowPage=" + totalPage + " ' " + ((totalPage==nowPage)? "style='display:none'": "") + "> >>> " +"</a>"; //맨 끝으로
 
         result.put("getRecord", getRecord);
         result.put("paging", paging);
