@@ -53,8 +53,6 @@ public class BoardService {
 
         int record = Integer.valueOf(entityManager.createQuery("select count(*) as TTT from Board").getResultList().get(0).toString());
         int totalPage = (record/10) + ((record % 10) > 0 ? 1 : 0 );
-//      if((record % 10) == 0) totalPage = record/10;
-//      else totalPage = (record/10)+1;
 
 //        int endPage = nowPage * 10; // 끝 페이지
 //        int startPage = endPage - 10 + 1; //시작 페이지
@@ -67,10 +65,8 @@ public class BoardService {
             pagenation = nowPage/tabSize + 1;
         }
 
-        int endTabSize = pagenation * tabSize -1;
-        int startTabSize = endTabSize - tabSize + 1;
-        System.out.println(endTabSize);
-        System.out.println(startTabSize);
+        int endTabSize = pagenation * tabSize -1; // 끝 페이지
+        int startTabSize = endTabSize - tabSize + 1; // 첫 페이지
         //pagenation = pagenation * tabSize;
 
         String makePagingg = "";
@@ -80,19 +76,25 @@ public class BoardService {
         makePagingg += "<a href='/list_new?nowPage=" + (nowPage-1) + "'> " +"<"+ " </a>";
 
         int[] makePaging = new int[5];
-        int makePagingSize = pagenation + makePaging.length;
         for(int i = startTabSize; i <= endTabSize; i++) {
-            makePagingg += "<a href='/list_new?nowPage=" + (i+1) + "'> " +  (i+1) + " </a>";
+            if(i+1 == nowPage){
+                makePagingg += "<strong><a href='/list_new?nowPage=" + (i+1) + "' > " +  (i+1) + " </a></strong>";
+            }else{
+                makePagingg += "<a href='/list_new?nowPage=" + (i+1) + "' > " +  (i+1) + " </a>";
+            }
+
         }
 
-        makePagingg += "<a href='/list_new?nowPage=" + (nowPage+1) + "'> > </a>";
+        makePagingg += "<a href='/list_new?nowPage=" + (nowPage+1) + "'> ></a>";
         makePagingg += "<a href='/list_new?nowPage=" +  (startTabSize+1+ tabSize)+ "'> >> </a>";
         makePagingg += "<a href='/list_new?nowPage=" + totalPage + "'> >>> " +"</a>";
 
 
         rtnMap.put("getList", getList);
-        rtnMap.put("makePaging", makePaging);
         rtnMap.put("makePagingg", makePagingg);
+        rtnMap.put("nowPage", nowPage);
+        rtnMap.put("startTabSize", startTabSize);
+        rtnMap.put("endTabSize", endTabSize);
         return rtnMap;
     }
     public List<Board> findAllBoard(){
