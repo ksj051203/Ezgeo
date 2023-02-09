@@ -2,11 +2,15 @@ package com.example.board.controller;
 import com.example.board.domain.Board;
 import com.example.board.domain.BoardDto;
 import com.example.board.service.BoardService;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
+
 @Controller
+@RequestMapping
 public class BoardController {
     public final BoardService boardService;
 
@@ -26,11 +30,20 @@ public class BoardController {
         return "redirect:/list";
     }
 
-    @GetMapping("/list")
-    public String pagingBoard(@RequestParam(value = "nowPage", defaultValue = "1") Integer nowPage, Model model){
-        model.addAttribute("board", boardService.pagingBoard(nowPage));
+
+
+    @RequestMapping(value="/list", method =  {RequestMethod.GET, RequestMethod.POST})
+    public String pagingBoard(
+            @RequestParam(value = "nowPage", defaultValue = "1") Integer nowPage,
+            @RequestParam(value="searchKeyword", required = false) String searchKeyword,
+            String searchType,
+            Model model
+            ){
+        model.addAttribute("board", boardService.pagingBoard(nowPage, searchKeyword, searchType));
         return "list";
     }
+
+
 
     @GetMapping("/list/{board_id}")
     public String findBoard(@PathVariable("board_id") Integer board_id, Model model) throws Exception{

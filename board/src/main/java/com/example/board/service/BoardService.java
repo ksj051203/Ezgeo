@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,14 +46,41 @@ public class BoardService {
         boardRepository.save(update);
     }
 
-    public Map<String, Object> pagingBoard(Integer nowPage){
+    public Map<String, Object> pagingBoard(Integer nowPage, String searchKeyword, String searchType){
         Map<String, Object> result = new HashMap<String, Object>();
+        System.out.println("searchKeyword" + searchKeyword);
+        System.out.println("searchType" + searchType);
 
+        String query = "select m from Board m where('1'==searchType and board_title like :searchKeyword) or ('2'==searchType and board_content like :searchKeyword) or ('3'==searchType and board_writer like :searchKeyword) or('4'==searchType and (board_title like :searchKeyword or board_content like :searchKeyword))";
+        List<Board> getSearchTitle = entityManager.createQuery(query, Board.class)
+                .setParameter("searchType", searchType)
+                .setParameter("searchKeyword","%"+searchKeyword+"%")
+                .getResultList();
+
+
+        System.out.println("getSearchTitle" + getSearchTitle);
+
+//        List<Board> getSearchContent = entityManager.createQuery("select m from Board m where m.board_content = :searchKeyword", Board.class)
+//                .setParameter("searchKeyword", searchKeyword)
+//                .getResultList();
+//        System.out.println("getSearchContent" + getSearchContent);
+//
+//        List<Board> getSearchWriter = entityManager.createQuery("select m from Board m where m.board_writer = :searchKeyword", Board.class)
+//                .setParameter("searchKeyword", searchKeyword)
+//                .getResultList();
+//        System.out.println("getSearchWriter"+getSearchWriter);
+//
+//        List<Board> getSearchTitleContent = entityManager.createQuery("select m from Board m where m.board_title = :searchKeyword and m.board_content = :searchKeyword", Board.class)
+//                .setParameter("searchKeyword", searchKeyword)
+//                .getResultList();
+//        System.out.println("getSearchTitleContent" + getSearchTitleContent);
+
+        //게시물 10개 가져오기
         List<Board> getRecord = entityManager.createQuery("select m from Board m order by m.board_id", Board.class)
                 .setFirstResult((nowPage-1) * RECORD_LENGTH)
                 .setMaxResults(RECORD_LENGTH)
                 .getResultList();
-        //게시물 10개 가져오기
+
 
         int allRecordCnt =  parseInt((entityManager.createQuery("select count(*) from Board").getResultList().get(0).toString())); //저장된 게시물 개수
 
@@ -67,7 +95,7 @@ public class BoardService {
 
         String paging = "";
 
-        paging += "<a href='list?nowPage=1"+ " ' "+((nowPage==1)? "style='display:none'":"") +"> <<< </a>" ; // 맨 처음페이지
+        paging += "<a href='list?nowPage=1'"+((nowPage==1)? " style='display:none'":"") +"> <<< </a>" ; // 맨 처음페이지
 //          if(nowPage != 1) paging += "<a href='list? nowPage=1'> <<< </a>";
 //          else paging += "<a href='list?nowPage=1' style='display:none'> <<< </a>";
 
@@ -94,11 +122,8 @@ public class BoardService {
 
         result.put("getRecord", getRecord);
         result.put("paging", paging);
-
+        result.put("getSearch")
         return result;
-    }
-    public List<Board> findAllBoard(){
-        return boardRepository.findAll();
     }
 
     public void deleteBoard(Integer board_id){
