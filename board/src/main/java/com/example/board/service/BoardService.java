@@ -5,10 +5,12 @@ import com.example.board.domain.BoardDto;
 import com.example.board.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,35 +53,51 @@ public class BoardService {
         System.out.println("searchKeyword" + searchKeyword);
         System.out.println("searchType" + searchType);
 
-        String query = "select m from Board m where('1'==searchType and board_title like :searchKeyword) or ('2'==searchType and board_content like :searchKeyword) or ('3'==searchType and board_writer like :searchKeyword) or('4'==searchType and (board_title like :searchKeyword or board_content like :searchKeyword))";
-        List<Board> getSearchTitle = entityManager.createQuery(query, Board.class)
-                .setParameter("searchType", searchType)
-                .setParameter("searchKeyword","%"+searchKeyword+"%")
-                .getResultList();
+
+        String jpql = "select m from Board m ";
+        String whereSql = " where ";
+        List<String> whereCondition = new ArrayList<>();
+
+        if(!StringUtils.isEmpty(searchType)){
+            switch (searchType) {
+                case "1":
+                    whereCondition.add(" m.board_title like :searchKeyword ");
+                    break;
+                case "2":
+                    whereCondition.add(" m.board_content like :searchKeyword ");
+                    break;
+                case "3":
+                    whereCondition.add(" m.board_writer like :searchKeyword ");
+                    break;
+                case "4":
+                    whereCondition.add(" (m.board_title like :searchKeyword or m.board_content like :searchKeyword) ");
+                    break;
+                default:
+                    break;
+            }
+
+            jpql += whereSql + whereCondition.get(0);
+        }
 
 
-        System.out.println("getSearchTitle" + getSearchTitle);
+        TypedQuery query = entityManager.createQuery(jpql, Board.class);
+        if(!StringUtils.isEmpty(searchType)) query.setParameter("searchKeyword", "%"+searchKeyword+"%");
 
-//        List<Board> getSearchContent = entityManager.createQuery("select m from Board m where m.board_content = :searchKeyword", Board.class)
-//                .setParameter("searchKeyword", searchKeyword)
-//                .getResultList();
-//        System.out.println("getSearchContent" + getSearchContent);
-//
-//        List<Board> getSearchWriter = entityManager.createQuery("select m from Board m where m.board_writer = :searchKeyword", Board.class)
-//                .setParameter("searchKeyword", searchKeyword)
-//                .getResultList();
-//        System.out.println("getSearchWriter"+getSearchWriter);
-//
-//        List<Board> getSearchTitleContent = entityManager.createQuery("select m from Board m where m.board_title = :searchKeyword and m.board_content = :searchKeyword", Board.class)
-//                .setParameter("searchKeyword", searchKeyword)
-//                .getResultList();
-//        System.out.println("getSearchTitleContent" + getSearchTitleContent);
+        List<Board> resultList = query.getResultList();
+
+        System.out.println("resultList" + resultList);
+
+
+
+
 
         //게시물 10개 가져오기
         List<Board> getRecord = entityManager.createQuery("select m from Board m order by m.board_id", Board.class)
                 .setFirstResult((nowPage-1) * RECORD_LENGTH)
                 .setMaxResults(RECORD_LENGTH)
                 .getResultList();
+
+
 
 
         int allRecordCnt =  parseInt((entityManager.createQuery("select count(*) from Board").getResultList().get(0).toString())); //저장된 게시물 개수
@@ -122,7 +140,6 @@ public class BoardService {
 
         result.put("getRecord", getRecord);
         result.put("paging", paging);
-        result.put("getSearch")
         return result;
     }
 

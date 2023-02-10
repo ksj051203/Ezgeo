@@ -2,12 +2,9 @@ package com.example.board.controller;
 import com.example.board.domain.Board;
 import com.example.board.domain.BoardDto;
 import com.example.board.service.BoardService;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import javax.persistence.criteria.CriteriaBuilder;
 
 @Controller
 @RequestMapping
@@ -31,12 +28,11 @@ public class BoardController {
     }
 
 
-
     @RequestMapping(value="/list", method =  {RequestMethod.GET, RequestMethod.POST})
     public String pagingBoard(
             @RequestParam(value = "nowPage", defaultValue = "1") Integer nowPage,
-            @RequestParam(value="searchKeyword", required = false) String searchKeyword,
-            String searchType,
+            @RequestParam(value="searchKeyword", defaultValue = "") String searchKeyword,
+            @RequestParam(value="searchType", defaultValue = "") String searchType,
             Model model
             ){
         model.addAttribute("board", boardService.pagingBoard(nowPage, searchKeyword, searchType));
