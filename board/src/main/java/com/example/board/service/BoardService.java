@@ -9,7 +9,9 @@ import org.thymeleaf.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,12 +52,13 @@ public class BoardService {
 
     public Map<String, Object> pagingBoard(Integer nowPage, String searchKeyword, String searchType){
         Map<String, Object> result = new HashMap<String, Object>();
+
         System.out.println("searchKeyword" + searchKeyword);
         System.out.println("searchType" + searchType);
 
-
         String jpql = "select m from Board m ";
-        String whereSql = " where ";
+        String jpql1 = "select count(*) from Board m ";
+        String whereSql = "where";
         List<String> whereCondition = new ArrayList<>();
 
         if(!StringUtils.isEmpty(searchType)){
@@ -75,32 +78,42 @@ public class BoardService {
                 default:
                     break;
             }
-
             jpql += whereSql + whereCondition.get(0);
+            jpql1 += whereSql + whereCondition.get(0);
         }
 
-
-        TypedQuery query = entityManager.createQuery(jpql, Board.class);
-        if(!StringUtils.isEmpty(searchType)) query.setParameter("searchKeyword", "%"+searchKeyword+"%");
-
-        List<Board> resultList = query.getResultList();
-
-        System.out.println("resultList" + resultList);
-
-
-
-
+//        //게시물 10개 가져오기
+//        List<Board> getRecord = entityManager.createQuery(jpql, Board.class)
+//                .setParameter("searchKeyword", "%"+searchKeyword+"%")
+//                .setFirstResult((nowPage-1) * RECORD_LENGTH)
+//                .setMaxResults(RECORD_LENGTH)
+//                .getResultList();
 
         //게시물 10개 가져오기
-        List<Board> getRecord = entityManager.createQuery("select m from Board m order by m.board_id", Board.class)
+        TypedQuery<Board> getRecordTypedQuery = entityManager.createQuery(jpql, Board.class);
+
+        if(!StringUtils.isEmpty(searchType)) {
+            getRecordTypedQuery.setParameter("searchKeyword", "%"+searchKeyword+"%");
+        }
+
+        //게시물 10개 가져오기
+        List<Board> getRecord = getRecordTypedQuery
                 .setFirstResult((nowPage-1) * RECORD_LENGTH)
                 .setMaxResults(RECORD_LENGTH)
                 .getResultList();
 
+        System.out.println("getRecord : " + getRecord.toString());
+        System.out.println("jpql1 :"+jpql1);
 
+        Query allRecordCntTypedQuery = entityManager.createQuery(jpql1);
 
+        if(!StringUtils.isEmpty(searchType)){
+            allRecordCntTypedQuery.setParameter("searchKeyword", "%"+searchKeyword+"%");
+        }
 
-        int allRecordCnt =  parseInt((entityManager.createQuery("select count(*) from Board").getResultList().get(0).toString())); //저장된 게시물 개수
+        int allRecordCnt =  Integer.valueOf(allRecordCntTypedQuery
+                .getResultList().get(0).toString()); //저장된 게시물 개수
+
 
         int totalPage = (allRecordCnt/RECORD_LENGTH) + ((allRecordCnt%RECORD_LENGTH>0)? 1: 0); //전체 페이지
 
@@ -140,6 +153,8 @@ public class BoardService {
 
         result.put("getRecord", getRecord);
         result.put("paging", paging);
+        result.put("searchKeyword", searchKeyword);
+        result.put("searchType", searchType);
         return result;
     }
 

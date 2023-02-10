@@ -6,6 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 @Controller
 @RequestMapping
 public class BoardController {
@@ -28,14 +31,17 @@ public class BoardController {
     }
 
 
-    @RequestMapping(value="/list", method =  {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value="/list", method =  {RequestMethod.GET})
     public String pagingBoard(
             @RequestParam(value = "nowPage", defaultValue = "1") Integer nowPage,
             @RequestParam(value="searchKeyword", defaultValue = "") String searchKeyword,
             @RequestParam(value="searchType", defaultValue = "") String searchType,
-            Model model
+            Model model, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse
             ){
         model.addAttribute("board", boardService.pagingBoard(nowPage, searchKeyword, searchType));
+        model.addAttribute("searchType", searchType);
+        model.addAttribute("searchKeyword", searchKeyword);
+
         return "list";
     }
 
