@@ -4,10 +4,12 @@ import com.example.board.domain.BoardDto;
 import com.example.board.service.BoardService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @Controller
 @RequestMapping
@@ -31,21 +33,40 @@ public class BoardController {
     }
 
 
-    @RequestMapping(value="/list", method =  {RequestMethod.GET})
+    @GetMapping(value="/list")
     public String pagingBoard(
-            @RequestParam(value = "nowPage", defaultValue = "1") Integer nowPage,
-            @RequestParam(value="searchKeyword", defaultValue = "") String searchKeyword,
-            @RequestParam(value="searchType", defaultValue = "") String searchType,
-            Model model, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse
-            ){
-        model.addAttribute("board", boardService.pagingBoard(nowPage, searchKeyword, searchType));
+            // @RequestParam(value = "nowPage", defaultValue = "1") Integer nowPage,
+//            @RequestParam(value="searchKeyword", defaultValue = "") String searchKeyword,
+//            @RequestParam(value="searchType", defaultValue = "") String searchType,
+            @RequestParam Map<String, Object> reqMap,
+            Model model
+        ){
+
+        System.out.println("reqMap : " + reqMap.toString());
+
+        Integer nowPage = 1;
+        if(!ObjectUtils.isEmpty(reqMap.get("nowPage"))) nowPage = Integer.valueOf(reqMap.get("nowPage").toString());
+
+        String searchKeyword = "";
+        if(!ObjectUtils.isEmpty(reqMap.get("searchKeyword"))) searchKeyword = reqMap.get("searchKeyword").toString();
+        System.out.println("searchKeyword" + reqMap.get("searchKeyword"));
+
+        String searchType = "";
+        if(!ObjectUtils.isEmpty(reqMap.get("searchType"))) searchType = reqMap.get("searchType").toString();
+        System.out.println("searchType" + searchType) ;
+
+
+        reqMap.put("nowPage", nowPage);
+        reqMap.put("searchType", searchType);
+        reqMap.put("searchKeyword", searchKeyword);
+
+        model.addAttribute("board", boardService.pagingBoard(nowPage, searchKeyword, searchType, reqMap));
         model.addAttribute("searchType", searchType);
         model.addAttribute("searchKeyword", searchKeyword);
 
+
         return "list";
     }
-
-
 
     @GetMapping("/list/{board_id}")
     public String findBoard(@PathVariable("board_id") Integer board_id, Model model) throws Exception{

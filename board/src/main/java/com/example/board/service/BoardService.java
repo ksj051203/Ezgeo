@@ -11,13 +11,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static javax.xml.bind.DatatypeConverter.parseInt;
 
 @Service
 public class BoardService {
@@ -50,11 +47,13 @@ public class BoardService {
         boardRepository.save(update);
     }
 
-    public Map<String, Object> pagingBoard(Integer nowPage, String searchKeyword, String searchType){
+    public Map<String, Object> pagingBoard(Integer nowPage, String searchKeyword, String searchType, Map<String, Object> rtnMap){
         Map<String, Object> result = new HashMap<String, Object>();
 
-        System.out.println("searchKeyword" + searchKeyword);
-        System.out.println("searchType" + searchType);
+//         System.out.println("searchKeyword" + searchKeyword);
+//         System.out.println("searchType" + searchType);
+
+        String search = "<a href='list?searchType=" + (searchType)+ "&searchKeyword="+(searchKeyword) +"&nowPage=";
 
         String jpql = "select m from Board m ";
         String jpql1 = "select count(*) from Board m ";
@@ -82,14 +81,14 @@ public class BoardService {
             jpql1 += whereSql + whereCondition.get(0);
         }
 
-//        //게시물 10개 가져오기
-//        List<Board> getRecord = entityManager.createQuery(jpql, Board.class)
-//                .setParameter("searchKeyword", "%"+searchKeyword+"%")
-//                .setFirstResult((nowPage-1) * RECORD_LENGTH)
-//                .setMaxResults(RECORD_LENGTH)
-//                .getResultList();
 
-        //게시물 10개 가져오기
+        // List<Board> getRecord = entityManager.createQuery(jpql, Board.class)
+        //          .setParameter("searchKeyword", "%"+searchKeyword+"%")
+        //          .setFirstResult((nowPage-1) * RECORD_LENGTH)
+        //          .setMaxResults(RECORD_LENGTH)
+        //          .getResultList();
+
+  
         TypedQuery<Board> getRecordTypedQuery = entityManager.createQuery(jpql, Board.class);
 
         if(!StringUtils.isEmpty(searchType)) {
@@ -102,8 +101,8 @@ public class BoardService {
                 .setMaxResults(RECORD_LENGTH)
                 .getResultList();
 
-        System.out.println("getRecord : " + getRecord.toString());
-        System.out.println("jpql1 :"+jpql1);
+        // System.out.println("getRecord : " + getRecord.toString());
+        // System.out.println("jpql1 :"+jpql1);
 
         Query allRecordCntTypedQuery = entityManager.createQuery(jpql1);
 
@@ -126,33 +125,34 @@ public class BoardService {
 
         String paging = "";
 
-        paging += "<a href='list?nowPage=1'"+((nowPage==1)? " style='display:none'":"") +"> <<< </a>" ; // 맨 처음페이지
+        paging += search+"1" + "'"+((nowPage==1)? " style='display:none'":"")+"> <<< </a>" ; // 맨 처음페이지
 //          if(nowPage != 1) paging += "<a href='list? nowPage=1'> <<< </a>";
 //          else paging += "<a href='list?nowPage=1' style='display:none'> <<< </a>";
 
-        paging += "<a href='list?nowPage=" + (startPage-4) + " ' " + ((pagination==1)? "style='display:none'":"") + "> << </a>"; // 이전 사이클 첫페이지
+        paging += search + (startPage-4) + " ' " + ((pagination==1)? "style='display:none'":"")+"> << </a>"; // 이전 사이클 첫페이지
 //          if(nowPage==1) paging += "<a href='/list?nowPage=" +(startPage-4) +"' style='display:none'> << </a>";
 //          else paging += "<a href='list?nowPage=" + (startPage-4)+ "'> << </a>";
 
-        paging += "<a href='list?nowPage=" + (nowPage-1) + " ' " + ((nowPage==1)? "style='display:none'":"") + "> < </a>"; // 이전 페이지
+        paging += search + (nowPage-1) + " ' " + ((nowPage==1)? "style='display:none'":"") + "> < </a>"; // 이전 페이지
 //          if(nowPage==1) paging += "<a href='list?nowPage=" + (nowPage -1) + "' style='display:none'> < </a>";
 //          else paging += "<a href='list?nowPage=" + (nowPage -1) + "'> < </a>";
 
 
         for(int i=startPage; i<=endPage; i++){
             int index=i+1;
-            paging += ((index == nowPage)? "<strong>" : "")+"<a href='/list?nowPage=" + (index)  + "' > "+  index + " </a>" + ((index == nowPage)? "</strong>" : "");
+            paging += ((index == nowPage)? "<strong>" : "")+ search+ (index)  + "' > "+  index + " </a>" + ((index == nowPage)? "</strong>" : "");
 //            if(i+1 == nowPage) paging += "<strong><a href='/list?nowPage=" + (i+1)  + "' > "+  (i+1) + " </a></strong>"; // 현재 페이지 표시
 //            else paging += "<a href='/list?nowPage=" + (i+1) + "' > " +  (i+1) + " </a>"; // 페이지 표시
         }
+                                        
 
-
-        paging += "<a href='/list?nowPage=" + (nowPage+1) + " ' " + ((nowPage==totalPage)? "style='display:none'": "")+ "> ></a>"; // 다음 페이지
-        paging += "<a href='/list?nowPage=" +  (startPage+1+TAB_SIZE)+ " ' " + ((pagination==lastPagination)? "style='display:none'": "") + "> >> </a>"; // 다음 사이클 첫번째 페이지
-        paging += "<a href='/list?nowPage=" + totalPage + " ' " + ((totalPage==nowPage)? "style='display:none'": "") + "> >>> " +"</a>"; //맨 끝으로
+        paging += search + (nowPage+1) +" ' " + ((nowPage==totalPage)? "style='display:none'": "") + "> ></a>"; // 다음 페이지
+        paging += search +  (startPage+1+TAB_SIZE)+ " ' " + ((pagination==lastPagination)? "style='display:none'": "") +"> >> </a>"; // 다음 사이클 첫번째 페이지
+        paging += search + totalPage + " ' " + ((totalPage==nowPage)? "style='display:none'": "") +"> >>> </a>"; //맨 끝으로
 
         result.put("getRecord", getRecord);
         result.put("paging", paging);
+        result.put("nowPage", nowPage);
         result.put("searchKeyword", searchKeyword);
         result.put("searchType", searchType);
         return result;

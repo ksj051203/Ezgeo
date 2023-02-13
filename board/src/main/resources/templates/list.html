@@ -1,29 +1,20 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:c="http://www.w3.org/1999/XSL/Transform">
 <head>
     <meta charset="UTF-8">
     <title>게시글 리스트 조회</title>
 </head>
 <body>
-<form action="/list" method="get">
+<form method="get">
     <select name="searchType">
-<!--        onchange="func(this.value)"-->
-        <option value="1">제목</option>
-        <option value="2">내용</option>
-        <option value="3">작성자</option>
-        <option value="4">제목+내용</option>
+        <option value='1' th:selected="(${searchType} == '1')">제목</option>
+        <option value='2' th:selected="(${searchType} == '2')">내용</option>
+        <option value='3' th:selected="(${searchType} == '3')">작성자</option>
+        <option value='4' th:selected="(${searchType} == '4')">제목+내용</option>
     </select>
-    <input type="text" name="searchKeyword">
-    <button type="submit" th:href="@{/list(searchKeyword=${board['searchKeyword']})}">검색</button>
+    <input type="text" name="searchKeyword" th:value="${searchKeyword}">
+    <button type="submit">검색</button>
 </form>
-<!--th:href="@{/list(searchKeyword=${searchKeyword}-->
-
-<!--<script>-->
-<!--    function func(search){-->
-<!--        document.sr.search.value= search; // es6-->
-<!--    }-->
-<!--</script>-->
-
 
 <table border="1">
     <thead>
