@@ -7,12 +7,12 @@
 <body>
 <form method="get">
     <select name="searchType">
-        <option value='1' th:selected="(${searchType} == '1')">제목</option>
-        <option value='2' th:selected="(${searchType} == '2')">내용</option>
-        <option value='3' th:selected="(${searchType} == '3')">작성자</option>
-        <option value='4' th:selected="(${searchType} == '4')">제목+내용</option>
+        <option value='1' th:selected="(${board['searchType']} == '1')">제목</option>
+        <option value='2' th:selected="(${board['searchType']} == '2')">내용</option>
+        <option value='3' th:selected="(${board['searchType']} == '3')">작성자</option>
+        <option value='4' th:selected="(${board['searchType']} == '4')">제목+내용</option>
     </select>
-    <input type="text" name="searchKeyword" th:value="${searchKeyword}">
+    <input type="text" name="searchKeyword" th:value="${param.searchKeyword}">
     <button type="submit">검색</button>
 </form>
 

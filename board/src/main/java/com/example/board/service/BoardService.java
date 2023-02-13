@@ -47,11 +47,15 @@ public class BoardService {
         boardRepository.save(update);
     }
 
-    public Map<String, Object> pagingBoard(Integer nowPage, String searchKeyword, String searchType, Map<String, Object> rtnMap){
+    public Map<String, Object> pagingBoard(Map<String, Object> rtnMap){
         Map<String, Object> result = new HashMap<String, Object>();
 
 //         System.out.println("searchKeyword" + searchKeyword);
 //         System.out.println("searchType" + searchType);
+
+        String searchType = rtnMap.get("searchType").toString();
+        String searchKeyword = rtnMap.get("searchKeyword").toString();
+        int nowPage = Integer.valueOf(rtnMap.get("nowPage").toString());
 
         String search = "<a href='list?searchType=" + (searchType)+ "&searchKeyword="+(searchKeyword) +"&nowPage=";
 
@@ -82,18 +86,10 @@ public class BoardService {
         }
 
 
-        // List<Board> getRecord = entityManager.createQuery(jpql, Board.class)
-        //          .setParameter("searchKeyword", "%"+searchKeyword+"%")
-        //          .setFirstResult((nowPage-1) * RECORD_LENGTH)
-        //          .setMaxResults(RECORD_LENGTH)
-        //          .getResultList();
-
   
         TypedQuery<Board> getRecordTypedQuery = entityManager.createQuery(jpql, Board.class);
 
-        if(!StringUtils.isEmpty(searchType)) {
-            getRecordTypedQuery.setParameter("searchKeyword", "%"+searchKeyword+"%");
-        }
+        if(!StringUtils.isEmpty(searchType)) getRecordTypedQuery.setParameter("searchKeyword", "%"+searchKeyword+"%");
 
         //게시물 10개 가져오기
         List<Board> getRecord = getRecordTypedQuery
@@ -101,14 +97,9 @@ public class BoardService {
                 .setMaxResults(RECORD_LENGTH)
                 .getResultList();
 
-        // System.out.println("getRecord : " + getRecord.toString());
-        // System.out.println("jpql1 :"+jpql1);
-
         Query allRecordCntTypedQuery = entityManager.createQuery(jpql1);
 
-        if(!StringUtils.isEmpty(searchType)){
-            allRecordCntTypedQuery.setParameter("searchKeyword", "%"+searchKeyword+"%");
-        }
+        if(!StringUtils.isEmpty(searchType)) allRecordCntTypedQuery.setParameter("searchKeyword", "%"+searchKeyword+"%");
 
         int allRecordCnt =  Integer.valueOf(allRecordCntTypedQuery
                 .getResultList().get(0).toString()); //저장된 게시물 개수
@@ -153,8 +144,9 @@ public class BoardService {
         result.put("getRecord", getRecord);
         result.put("paging", paging);
         result.put("nowPage", nowPage);
-        result.put("searchKeyword", searchKeyword);
+//        result.put("searchKeyword", searchKeyword);
         result.put("searchType", searchType);
+
         return result;
     }
 
