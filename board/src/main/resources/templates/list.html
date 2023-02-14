@@ -28,7 +28,7 @@
     </thead>
 
     <tbody>
-        <tr th:each="board:${board['getRecord']}">
+        <tr th:each="board :${board['getRecord']}">
             <td th:text="${board.board_id}">1</td>
             <td>
                 <a th:href="@{/list/{board_id}(board_id=${board.board_id})}" th:text="${board.board_title}">제목</a>

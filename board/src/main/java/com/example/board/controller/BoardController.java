@@ -34,26 +34,16 @@ public class BoardController {
 
 
     @GetMapping(value="/list")
-    public String pagingBoard(
-            // @RequestParam(value = "nowPage", defaultValue = "1") Integer nowPage,
-            // @RequestParam(value="searchKeyword", defaultValue = "") String searchKeyword,
-            // @RequestParam(value="searchType", defaultValue = "") String searchType,
-            @RequestParam Map<String, Object> reqMap,
-            Model model
-        ){
-
-            // System.out.println("reqMap : " + reqMap.toString());
+    public String pagingBoard( @RequestParam Map<String, Object> reqMap, Model model, Board board){
 
         Integer nowPage = 1;
         if(!ObjectUtils.isEmpty(reqMap.get("nowPage"))) nowPage = Integer.valueOf(reqMap.get("nowPage").toString());
 
         String searchKeyword = "";
         if(!ObjectUtils.isEmpty(reqMap.get("searchKeyword"))) searchKeyword = reqMap.get("searchKeyword").toString();
-        System.out.println("searchKeyword" + reqMap.get("searchKeyword"));
 
         String searchType = "";
         if(!ObjectUtils.isEmpty(reqMap.get("searchType"))) searchType = reqMap.get("searchType").toString();
-        System.out.println("searchType" + searchType) ;
 
 
         reqMap.put("nowPage", nowPage);
@@ -70,6 +60,7 @@ public class BoardController {
         model.addAttribute("board", boardService.findBoard(board_id));
         return "view";
     };
+
 
     @GetMapping ("/delete")
     public String deleteBoard(Integer board_id){
