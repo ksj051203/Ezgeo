@@ -139,7 +139,9 @@ public class BoardService {
         result.put("getRecord", getRecord);
         result.put("searchKeyword", searchKeyword);
         result.put("searchType", searchType);
+        result.put("nowPage", nowPage);
         result.put("allRecordCnt", allRecordCnt);
+        result.put("totalPage", totalPage);
         result.put("paging", paging);
         return result;
     }

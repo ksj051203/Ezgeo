@@ -34,7 +34,7 @@ public class BoardController {
 
 
     @GetMapping(value="/list")
-    public String pagingBoard( @RequestParam Map<String, Object> reqMap, Model model, Board board){
+    public String pagingBoard( @RequestParam Map<String, Object> reqMap, Model model){
 
         Integer nowPage = 1;
         if(!ObjectUtils.isEmpty(reqMap.get("nowPage"))) nowPage = Integer.valueOf(reqMap.get("nowPage").toString());
@@ -51,6 +51,9 @@ public class BoardController {
         reqMap.put("searchKeyword", searchKeyword);
 
         model.addAttribute("board", boardService.pagingBoard(reqMap));
+        model.addAttribute("nowPage", nowPage);
+
+        System.out.println("nowPage" + nowPage);
 
         return "list";
     }
