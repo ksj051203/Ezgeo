@@ -5,13 +5,17 @@ import com.example.board.repository.BoardRepository;
 import com.example.board.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.exceptions.ParserInitializationException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
@@ -36,15 +40,36 @@ public class CommentService {
         Map<String, Object> result = new HashMap<>();
         int board_id = Integer.valueOf(reqMap.get("board_id").toString());
 
-        String query = "select * from (select *,(case when c.depth = 0 then c.comment_id else c.parent_id end)as ttt from Comment as c where comment_sequence = :board_id)as T order by ttt, comment_id";
+        System.out.println(board_id);
+
+        // 댓글 작성 순서대로 댓글 출력하는  query
+        String query = "select * from (select *,(case when c.depth = 0 then c.comment_id else c.parent_id end)as ttt from Comment as c )as T where comment_sequence = :board_id order by ttt, comment_id";
 
         Query getComment = entityManager.createNativeQuery(query, Comment.class)
                 .setParameter("board_id", board_id);
 
+        //
+        List<String> rtnList = new ArrayList<String>();
+
+
         List<Comment> resultList = getComment.getResultList();
 
-        result.put("resultList", resultList);
+        int resultListSize = resultList.size();
+        for (int i = 0; i < resultListSize; i++) {
+            Comment item = resultList.get(i);
+            int depth = resultList.get(i).getDepth();
+
+            String depthChar = "";
+            for (int j = 0; j < depth; j++) depthChar += "ㄴ";
+
+            rtnList.add(depthChar + item.getComment_content());
+
+        }
+
+        result.put("resultList", rtnList);
+
         return result;
 
     };
+
 }

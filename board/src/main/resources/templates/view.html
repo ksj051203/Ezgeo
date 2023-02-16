@@ -21,15 +21,16 @@
         <input type="text" id="comment_content" name="comment_content" value="내용">
         <button type="submit">작성</button>
     </form>
+<!--    <div th:each="comment :${comment['resultList']}">-->
+<!--            <span th:text="${comment.comment_sequence}">comment_sequence</span>-->
+<!--            <span th:text="${comment.comment_id}">comment_id</span>-->
+<!--            <span th:text="${comment.parent_id}"></span>-->
+<!--            <span th:text="${comment.depth}"></span>-->
+<!--            <span th:text="${comment.comment_writer}">comment_writer</span>-->
+<!--            <span th:text="${comment.comment_content}">comment_content</span>-->
+<!--    </div>-->
     <div th:each="comment :${comment['resultList']}">
-            <span th:text="${comment.comment_sequence}">comment_sequence</span>
-            <span th:text="${comment.comment_id}">comment_id</span>
-            <span th:text="${comment.depth}"></span>
-            <span th:text="${comment.comment_writer}">comment_writer</span>
-            <span th:text="${comment.comment_content}">comment_content</span>
+            <span th:text="${comment}"></span> <button>댓글등록</button>
     </div>
-<!--    <div th:text=" ${comment.comment_write_date}"></div>-->
-<!--    <div th:text="${comment.comment_modify_date}"></div>-->
-
 </body>
 </html>
