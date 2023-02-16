@@ -60,16 +60,17 @@ public class BoardController {
     }
 
     @RequestMapping(value="/list/{board_id}", method={RequestMethod.GET})
-    public String findBoard(@PathVariable("board_id") Integer board_id, Model model, Comment comment) throws  Exception{
+    public String findBoard(@PathVariable("board_id") Integer board_id, Map<String, Object> reqMap, Model model) throws  Exception{
+        reqMap.put("board_id", board_id);
         model.addAttribute("board", boardService.findBoard(board_id));
-        model.addAttribute("comment", commentService.findComment());
+        model.addAttribute("comment", commentService.findComment(reqMap));
         return "view";
     };
 
     @RequestMapping(value="/list/addComment/{board_id}", method={RequestMethod.POST })
     public String addComment(@PathVariable("board_id") Integer board_id, Model model, Comment comment) throws  Exception{
         model.addAttribute("board", boardService.findBoard(board_id));
-        model.addAttribute("comment", commentService.commentFinish(comment));
+        model.addAttribute("comment", commentService.commentFinish(board_id, comment));
         return "view";
     };
 

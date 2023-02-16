@@ -1,6 +1,7 @@
 package com.example.board.service;
 
 import com.example.board.domain.Comment.Comment;
+import com.example.board.repository.BoardRepository;
 import com.example.board.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,9 @@ import java.util.Map;
 public class CommentService {
     @Autowired
     public CommentRepository commentRepository;
+
+    @Autowired
+    public BoardRepository boardRepository;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -23,31 +27,23 @@ public class CommentService {
         this.commentRepository = commentRepository;
     }
 
-    public Comment commentFinish(Comment comment) {
+    public Comment commentFinish(Integer board_id, Comment comment) {
         Comment cm = commentRepository.save(comment);
         return cm;
     }
 
-    public Map<String, Object> findComment(){
+    public Map<String, Object> findComment(Map<String, Object> reqMap){
         Map<String, Object> result = new HashMap<>();
-        String query = "select * from (select *,(case when depth = 0 then comment_id else parent_id end)as ttt from Comment as c where 1=1)as T  order by ttt, comment_id";
+        int board_id = Integer.valueOf(reqMap.get("board_id").toString());
 
-        Query getComment = entityManager.createNativeQuery(query, Comment.class);
+        String query = "select * from (select *,(case when c.depth = 0 then c.comment_id else c.parent_id end)as ttt from Comment as c where comment_sequence = :board_id)as T order by ttt, comment_id";
+
+        Query getComment = entityManager.createNativeQuery(query, Comment.class)
+                .setParameter("board_id", board_id);
 
         List<Comment> resultList = getComment.getResultList();
 
-        System.out.println("resultList"+ resultList);
-
-
-
         result.put("resultList", resultList);
-//        result.put("comment_sequence", comment_sequence);
-//        result.put("comment_id", comment_id);
-//        result.put("parent_id", parent_id);
-//        result.put("depth", depth);
-//        result.put("comment_writer", comment_writer);
-//        result.put("comment_content", comment_content);
-
         return result;
 
     };
