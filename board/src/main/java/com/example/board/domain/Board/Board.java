@@ -1,16 +1,10 @@
-package com.example.board.domain;
+package com.example.board.domain.Board;
 
 import javax.persistence.*;
-
-import com.example.board.domain.BaseTime;
-import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 
-@Transactional
 @Entity
 @Data
 @Getter

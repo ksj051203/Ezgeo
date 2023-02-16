@@ -1,24 +1,27 @@
 package com.example.board.controller;
-import com.example.board.domain.Board;
-import com.example.board.domain.BoardDto;
+import com.example.board.domain.Board.Board;
+import com.example.board.domain.Board.BoardDto;
+import com.example.board.domain.Comment.Comment;
 import com.example.board.service.BoardService;
+import com.example.board.service.CommentService;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 @Controller
 @RequestMapping
+@AllArgsConstructor
 public class BoardController {
+    @Autowired
     public final BoardService boardService;
 
-    public BoardController(BoardService boardService) {
-        this.boardService = boardService;
-    }
+    @Autowired
+    public final CommentService commentService;
 
     @GetMapping("/create")
     public String createBoard(Model model, Board board){
@@ -53,14 +56,20 @@ public class BoardController {
         model.addAttribute("board", boardService.pagingBoard(reqMap));
         model.addAttribute("nowPage", nowPage);
 
-        System.out.println("nowPage" + nowPage);
-
         return "list";
     }
 
-    @GetMapping("/list/{board_id}")
-    public String findBoard(@PathVariable("board_id") Integer board_id, Model model) throws Exception{
+    @RequestMapping(value="/list/{board_id}", method={RequestMethod.GET})
+    public String findBoard(@PathVariable("board_id") Integer board_id, Model model, Comment comment) throws  Exception{
         model.addAttribute("board", boardService.findBoard(board_id));
+        model.addAttribute("comment", commentService.findComment());
+        return "view";
+    };
+
+    @RequestMapping(value="/list/addComment/{board_id}", method={RequestMethod.POST })
+    public String addComment(@PathVariable("board_id") Integer board_id, Model model, Comment comment) throws  Exception{
+        model.addAttribute("board", boardService.findBoard(board_id));
+        model.addAttribute("comment", commentService.commentFinish(comment));
         return "view";
     };
 

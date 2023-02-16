@@ -1,10 +1,10 @@
 package com.example.board.service;
 
-import com.example.board.domain.Board;
-import com.example.board.domain.BoardDto;
+import com.example.board.domain.Board.Board;
+import com.example.board.domain.Board.BoardDto;
+import com.example.board.domain.Comment.Comment;
 import com.example.board.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.util.StringUtils;
 
@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static java.nio.file.Paths.get;
 
 @Service
 public class BoardService {
@@ -38,8 +36,6 @@ public class BoardService {
     public void createFinish(Board board) {
         boardRepository.save(board);
     }
-
-    ;
 
     public Board findBoard(Integer board_id) {
         return boardRepository.findById(board_id).get();
@@ -139,12 +135,11 @@ public class BoardService {
         result.put("getRecord", getRecord);
         result.put("searchKeyword", searchKeyword);
         result.put("searchType", searchType);
-        result.put("nowPage", nowPage);
-        result.put("allRecordCnt", allRecordCnt);
-        result.put("totalPage", totalPage);
         result.put("paging", paging);
+
         return result;
     }
+
 
     /**
      * 이렇게 이름 만들기 필수.
