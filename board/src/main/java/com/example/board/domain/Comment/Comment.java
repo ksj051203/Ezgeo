@@ -1,6 +1,7 @@
 package com.example.board.domain.Comment;
 
 import lombok.Data;
+import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +17,7 @@ public class Comment extends BaseTime2 {
     @Column
     private Integer comment_sequence;
     @Id
+    @Generated
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer comment_id;
     @Column

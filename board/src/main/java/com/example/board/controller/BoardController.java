@@ -7,6 +7,7 @@ import com.example.board.service.CommentService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -59,6 +60,7 @@ public class BoardController {
         return "list";
     }
 
+    @Transactional
     @RequestMapping(value="/list/{board_id}", method={RequestMethod.GET})
     public String findBoard(@PathVariable("board_id") Integer board_id, Map<String, Object> reqMap, Model model, Comment comment) throws  Exception{
         reqMap.put("board_id", board_id);
@@ -67,13 +69,19 @@ public class BoardController {
         return "view";
     };
 
+    @Transactional
     @RequestMapping(value="/list/addComment/{board_id}", method={RequestMethod.POST })
+    //@ResponseBody
     public String addComment(@PathVariable("board_id") Integer board_id, Model model, Map<String, Object> reqMap, Comment comment) throws  Exception{
+        int depth = 0;
+        reqMap.put("comment_writer", comment.getComment_writer());
+        reqMap.put("comment_content", comment.getComment_content());
+;       reqMap.put("depth", depth);
         reqMap.put("board_id", board_id);
         model.addAttribute("board", boardService.findBoard(board_id));
-        commentService.commentFinish(board_id, comment);
         model.addAttribute("comment", commentService.findComment(reqMap));
-        return "view";
+        Comment dto = commentService.insertComment(reqMap, comment);
+        return "redirect:/list/"+board_id;
     };
 
 
@@ -94,5 +102,14 @@ public class BoardController {
     public String updateBoard(@PathVariable("board_id") Integer board_id, BoardDto boardDto){
         boardService.update(board_id, boardDto);
         return "redirect:/list";
+    };
+
+    @PostMapping("/axios")
+    @ResponseBody
+    public int updateBoardTest(){
+        //Gson
+        int rtn = 0;
+        // {code : 1}
+        return rtn;
     };
 }

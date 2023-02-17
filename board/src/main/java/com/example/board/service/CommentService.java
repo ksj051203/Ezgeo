@@ -5,17 +5,12 @@ import com.example.board.repository.BoardRepository;
 import com.example.board.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.exceptions.ParserInitializationException;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 public class CommentService {
@@ -31,16 +26,15 @@ public class CommentService {
         this.commentRepository = commentRepository;
     }
 
-    public Comment commentFinish(Integer board_id, Comment comment) {
+    public Comment commentFinish(Comment comment) {
         Comment cm = commentRepository.save(comment);
         return cm;
     }
 
+    @Transactional
     public Map<String, Object> findComment(Map<String, Object> reqMap){
         Map<String, Object> result = new HashMap<>();
         int board_id = Integer.valueOf(reqMap.get("board_id").toString());
-
-        System.out.println(board_id);
 
         // 댓글 작성 순서대로 댓글 출력하는  query
         String query = "select * from (select *,(case when c.depth = 0 then c.comment_id else c.parent_id end)as ttt from Comment as c )as T where comment_sequence = :board_id order by ttt, comment_id";
@@ -71,5 +65,30 @@ public class CommentService {
         return result;
 
     };
+
+    public Comment insertComment(Map<String, Object> reqMap, Comment comment){
+        int board_id = Integer.valueOf(reqMap.get("board_id").toString());
+        int depth = Integer.valueOf(reqMap.get("depth").toString());
+
+        String comment_writer = reqMap.get("comment_writer").toString();
+        String comment_content = reqMap.get("comment_content").toString();
+
+        String query = "insert into Comment(depth, comment_sequence , parent_id, comment_writer, comment_content) values(:depth, :board_id, case when depth = 0 then comment_id else parent_id end, :comment_writer, :comment_content)";
+
+        entityManager.createNativeQuery(query, Comment.class)
+                .setParameter("board_id", board_id)
+                .setParameter("depth", depth)
+                .setParameter("comment_writer", comment_writer)
+                .setParameter("comment_content", comment_content)
+                .executeUpdate();
+
+        String query1 = "Update Comment SET parent_id = LAST_INSERT_ID() order by comment_id desc limit 1";
+
+        entityManager.createNativeQuery(query1, Comment.class)
+                .executeUpdate();
+
+
+        return comment;
+    }
 
 }

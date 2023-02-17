@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <title>Title</title>
 </head>
 <body>
@@ -14,9 +15,6 @@
     <a th:href="@{/modify/{board_id}(board_id=${board.board_id})}">수정</a>
 
     <form th:action="@{/list/addComment/{board_id}(board_id=${board.board_id})}" method="post">
-        <input type="text" id="comment_sequence" name="comment_sequence" value="게시물 번호">
-        <input type="text" id="parent_id" name="parent_id" value="부모 아이디">
-        <input type="text" id="depth" name="depth" value="depth">
         <input type="text" id="comment_writer" name="comment_writer" value="작성자">
         <input type="text" id="comment_content" name="comment_content" value="내용">
         <button type="submit">작성</button>
@@ -30,7 +28,53 @@
 <!--            <span th:text="${comment.comment_content}">comment_content</span>-->
 <!--    </div>-->
     <div th:each="comment :${comment['resultList']}">
-            <span th:text="${comment}"></span> <button>댓글등록</button>
+            <span th:text="${comment}"></span>
+            <button type="submit" id = "comment" class = "comment" onclick="create_comment()">댓글 등록</button>
+
     </div>
+    <button id="axiosTest">test</button>
+<script>
+    function create_comment(){
+
+        // 작성자
+        const input1 = document.createElement("input");
+        // 내용
+        const input2 = document.createElement("input");
+        // 등록
+        const button1 = document.createElement("button");
+        // 삭제
+        const button2 = document.createElement("button");
+
+        input1.innerHTML = "작성자";
+        input2.innerHTML = "내용";
+        button1.innerHTML = "답글 작성";
+        button2.innerHTML="취소";
+
+        const divEl = document.createElement("div");
+
+        divEl.appendChild(input1);
+        divEl.appendChild(input2);
+        divEl.appendChild(button1);
+        divEl.appendChild(button2);
+
+        document.body.appendChild(divEl);
+
+    }
+
+    // document.getElementById('axiosTest').addEventListener('click', () => alert(1));
+    document.getElementById('axiosTest').addEventListener('click', async function (){
+        alert(1);
+        // axios 를 쓴다
+
+        try {
+            const rtnData = await axios.post('/axios');
+            alert(JSON.stringify(rtnData.data));
+        } catch (e) {
+            alert(e);
+        }
+        alert(2);
+    });
+
+</script>
 </body>
 </html>
