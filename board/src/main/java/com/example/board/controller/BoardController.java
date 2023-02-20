@@ -80,7 +80,7 @@ public class BoardController {
         reqMap.put("board_id", board_id);
         model.addAttribute("board", boardService.findBoard(board_id));
         model.addAttribute("comment", commentService.findComment(reqMap));
-        Comment dto = commentService.insertComment(reqMap, comment);
+        commentService.insertComment(reqMap, comment);
         return "redirect:/list/"+board_id;
     };
 
@@ -108,7 +108,7 @@ public class BoardController {
     @ResponseBody
     public int updateBoardTest(){
         //Gson
-        int rtn = 0;
+        int rtn = 1;
         // {code : 1}
         return rtn;
     };

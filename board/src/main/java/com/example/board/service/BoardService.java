@@ -4,6 +4,8 @@ import com.example.board.domain.Board.Board;
 import com.example.board.domain.Board.BoardDto;
 import com.example.board.domain.Comment.Comment;
 import com.example.board.repository.BoardRepository;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.util.StringUtils;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class BoardService {
     @Autowired
     public BoardRepository boardRepository;
@@ -99,7 +102,7 @@ public class BoardService {
         if (!StringUtils.isEmpty(searchType))
             allRecordCntTypedQuery.setParameter("searchKeyword", "%" + searchKeyword + "%");
 
-        int allRecordCnt = Integer.valueOf(allRecordCntTypedQuery
+        int allRecordCnt = Integer.parseInt(allRecordCntTypedQuery
                 .getResultList().get(0).toString()); //저장된 게시물 개수
 
 
@@ -136,6 +139,8 @@ public class BoardService {
         result.put("searchKeyword", searchKeyword);
         result.put("searchType", searchType);
         result.put("paging", paging);
+
+        entityManager.clear();
 
         return result;
     }

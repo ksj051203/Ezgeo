@@ -19,18 +19,10 @@
         <input type="text" id="comment_content" name="comment_content" value="내용">
         <button type="submit">작성</button>
     </form>
-<!--    <div th:each="comment :${comment['resultList']}">-->
-<!--            <span th:text="${comment.comment_sequence}">comment_sequence</span>-->
-<!--            <span th:text="${comment.comment_id}">comment_id</span>-->
-<!--            <span th:text="${comment.parent_id}"></span>-->
-<!--            <span th:text="${comment.depth}"></span>-->
-<!--            <span th:text="${comment.comment_writer}">comment_writer</span>-->
-<!--            <span th:text="${comment.comment_content}">comment_content</span>-->
-<!--    </div>-->
+
     <div th:each="comment :${comment['resultList']}">
             <span th:text="${comment}"></span>
-            <button type="submit" id = "comment" class = "comment" onclick="create_comment()">댓글 등록</button>
-
+            <button type="submit" id = "comment" class = "comment">댓글 등록</button>
     </div>
     <button id="axiosTest">test</button>
 <script>
@@ -63,16 +55,24 @@
 
     // document.getElementById('axiosTest').addEventListener('click', () => alert(1));
     document.getElementById('axiosTest').addEventListener('click', async function (){
-        alert(1);
         // axios 를 쓴다
 
         try {
-            const rtnData = await axios.post('/axios');
-            alert(JSON.stringify(rtnData.data));
+            const rtnData = await axios.post('/axios',
+                {
+                    comment_writer : 'sejin',
+                    comment_content : 'hi'
+                },
+                {
+                    "Content-Type" : `application/json`,
+                },
+
+            );
+
+            alert(rtnData.data);
         } catch (e) {
             alert(e);
         }
-        alert(2);
     });
 
 </script>

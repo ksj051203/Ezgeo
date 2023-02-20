@@ -1,9 +1,7 @@
 package com.example.board.domain.Comment;
 
-import lombok.Data;
-import lombok.Generated;
-import lombok.Getter;
-import lombok.Setter;
+import com.example.board.domain.Board.BaseTime;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -11,9 +9,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Data
-@Table(name = "comment")
-public class Comment extends BaseTime2 {
+//@Data
+//@ToString
+@Table(name = "Comment")
+public class Comment extends BaseTime {
     @Column
     private Integer comment_sequence;
     @Id
