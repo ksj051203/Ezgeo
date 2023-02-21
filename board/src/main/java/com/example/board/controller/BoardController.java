@@ -106,10 +106,20 @@ public class BoardController {
 
     @PostMapping("/axios")
     @ResponseBody
-    public int updateBoardTest(){
-        //Gson
-        int rtn = 1;
-        // {code : 1}
-        return rtn;
+    @Transactional
+    public void updateBoardTest(@RequestBody Map<String, Object> reqMap){
+        reqMap.put("comment_writer", reqMap.get("comment_writer"));
+        reqMap.put("comment_content", reqMap.get("comment_content"));
+        reqMap.put("comment_sequence", reqMap.get("comment_sequence"));
+        reqMap.put("parent_id", reqMap.get("parent_id"));
+
+        System.out.println("reqMap : " + reqMap);
+
+        commentService.testInsertComment(reqMap);
+
+//        //Gson
+//        int rtn = 1;
+//        // {code : 1}
+//        return rtn;
     };
 }
