@@ -78,34 +78,12 @@ public class CommentService {
         int board_id = Integer.parseInt(reqMap.get("board_id").toString());
         int depth = Integer.parseInt(reqMap.get("depth").toString());
         System.out.println("depth : " + depth);
-        String comment_writer = reqMap.get("comment_writer").toString();
-        String comment_content = reqMap.get("comment_content").toString();
-
-
-        String query = "INSERT INTO Comment(depth, comment_sequence , parent_id, comment_writer, comment_content) VALUES(:depth, :board_id, parent_id, :comment_writer, :comment_content)";
-
-        entityManager.createNativeQuery(query, Comment.class)
-                .setParameter("board_id", board_id)
-                .setParameter("depth", depth)
-                .setParameter("comment_writer", comment_writer)
-                .setParameter("comment_content", comment_content)
-                .executeUpdate();
-
-        String query1 = "UPDATE Comment SET parent_id = LAST_INSERT_ID() ORDER BY comment_id DESC LIMIT 1";
-        entityManager.createNativeQuery(query1, Comment.class)
-                .executeUpdate();
-
-        return 1;
-    }
-
-    public int insertAxiosComment(Map<String, Object> reqMap) {
-        int board_id = Integer.parseInt(reqMap.get("board_id").toString());
-        int depth = Integer.parseInt(reqMap.get("depth").toString());
         int parent_id = Integer.parseInt(reqMap.get("parent_id").toString());
         String comment_writer = reqMap.get("comment_writer").toString();
         String comment_content = reqMap.get("comment_content").toString();
 
-        String query = "INSERT INTO Comment(depth, comment_sequence , parent_id, comment_writer, comment_content) VALUES(:depth, :board_id, :parent_id , :comment_writer, :comment_content)";
+
+        String query = "INSERT INTO Comment(depth, comment_sequence , parent_id, comment_writer, comment_content) VALUES(:depth, :board_id, :parent_id, :comment_writer, :comment_content)";
 
         entityManager.createNativeQuery(query, Comment.class)
                 .setParameter("board_id", board_id)
@@ -114,6 +92,12 @@ public class CommentService {
                 .setParameter("comment_writer", comment_writer)
                 .setParameter("comment_content", comment_content)
                 .executeUpdate();
+
+        if (depth == 0) {
+            String query1 = "UPDATE Comment SET parent_id = LAST_INSERT_ID() ORDER BY comment_id DESC LIMIT 1";
+            entityManager.createNativeQuery(query1, Comment.class)
+                    .executeUpdate();
+        }
         return 1;
     }
 

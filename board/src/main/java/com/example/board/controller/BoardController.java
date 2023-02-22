@@ -82,7 +82,7 @@ public class BoardController {
     @Transactional
     public String addAxiosComment(Model model, @RequestBody Map<String, Object> reqMap) throws  Exception{
         System.out.println("reqMap : " + reqMap);
-        int rtn = commentService.insertAxiosComment(reqMap);
+        int rtn = commentService.insertComment(reqMap);
         int board_id = Integer.parseInt(reqMap.get("board_id").toString());
         return "redirect:/list/"+board_id;
     };
