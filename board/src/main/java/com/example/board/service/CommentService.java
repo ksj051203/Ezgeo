@@ -1,6 +1,5 @@
 package com.example.board.service;
 
-import com.example.board.domain.Board.Board;
 import com.example.board.domain.Comment.Comment;
 import com.example.board.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import java.util.*;
 
 @Service
@@ -34,8 +32,7 @@ public class CommentService {
         return cm;
     }
 
-    @Transactional
-    public List<Map<String, Object>> findComment(Map<String, Object> reqMap){
+    public List<Map<String, Object>> findComment(Map<String, Object> reqMap) {
         Map<String, Object> result = new HashMap<>();
         int board_id = Integer.parseInt(reqMap.get("board_id").toString());
 
@@ -52,38 +49,40 @@ public class CommentService {
                 "              , comment_id ";
 
 
-        Query getComment =  entityManager.createNativeQuery(query);
-        List<Object[]> resultList =  getComment.setParameter("board_id", board_id).getResultList();
-
+        Query getComment = entityManager.createNativeQuery(query);
+        List<Object[]> resultList = getComment.setParameter("board_id", board_id).getResultList();
 
         List<Map<String, Object>> rtnList = new ArrayList<Map<String, Object>>();
-
         int resultListSize = resultList.size();
-        for(int i = 0; i < resultListSize; i++) {
+        for (int i = 0; i < resultListSize; i++) {
             Object[] item = resultList.get(i);
             Map<String, Object> rtnMap = new HashMap<String, Object>();
-
+//
             String depthChar = "";
-            int depth = (int) item[3];
-            for (int j = 0; j < depth; j++) depthChar += "ㄴ";
+            int depth = item[3] == null ? 0 : (Integer) item[3];
+            for (int j = 0; j < depth; j++) {
+                depthChar += "ㄴ";
+            }
 
             rtnMap.put("content", depthChar + item[5].toString());
             rtnMap.put("id", item[1]);
+            rtnMap.put("depth", item[3]);
             rtnList.add(rtnMap);
         }
-
-        result.put("resultList", rtnList);
         return rtnList;
-    };
+    }
 
-    public Comment insertComment(Map<String, Object> reqMap, Comment comment){
+    ;
+
+    public int insertComment(Map<String, Object> reqMap) {
         int board_id = Integer.parseInt(reqMap.get("board_id").toString());
         int depth = Integer.parseInt(reqMap.get("depth").toString());
-
+        System.out.println("depth : " + depth);
         String comment_writer = reqMap.get("comment_writer").toString();
         String comment_content = reqMap.get("comment_content").toString();
 
-        String query = "INSERT INTO Comment(depth, comment_sequence , parent_id, comment_writer, comment_content) VALUES(:depth, :board_id, CASE WHEN depth = 0 THEN comment_id ELSE parent_id END, :comment_writer, :comment_content)";
+
+        String query = "INSERT INTO Comment(depth, comment_sequence , parent_id, comment_writer, comment_content) VALUES(:depth, :board_id, parent_id, :comment_writer, :comment_content)";
 
         entityManager.createNativeQuery(query, Comment.class)
                 .setParameter("board_id", board_id)
@@ -93,29 +92,29 @@ public class CommentService {
                 .executeUpdate();
 
         String query1 = "UPDATE Comment SET parent_id = LAST_INSERT_ID() ORDER BY comment_id DESC LIMIT 1";
-
         entityManager.createNativeQuery(query1, Comment.class)
                 .executeUpdate();
 
-
-        return comment;
+        return 1;
     }
 
-    public void testInsertComment(Map<String, Object> reqMap){
-        int comment_sequence = Integer.parseInt(reqMap.get("comment_sequence").toString());
+    public int insertAxiosComment(Map<String, Object> reqMap) {
+        int board_id = Integer.parseInt(reqMap.get("board_id").toString());
+        int depth = Integer.parseInt(reqMap.get("depth").toString());
         int parent_id = Integer.parseInt(reqMap.get("parent_id").toString());
-
         String comment_writer = reqMap.get("comment_writer").toString();
         String comment_content = reqMap.get("comment_content").toString();
 
-        String query = "INSERT INTO Comment(depth, comment_sequence, parent_id, comment_writer, comment_content) VALUES(1, :comment_sequence, CASE WHEN depth = 0 THEN comment_id ELSE parent_id END, :comment_writer, :comment_content)";
+        String query = "INSERT INTO Comment(depth, comment_sequence , parent_id, comment_writer, comment_content) VALUES(:depth, :board_id, :parent_id , :comment_writer, :comment_content)";
 
         entityManager.createNativeQuery(query, Comment.class)
+                .setParameter("board_id", board_id)
+                .setParameter("depth", depth)
+                .setParameter("parent_id", parent_id)
                 .setParameter("comment_writer", comment_writer)
                 .setParameter("comment_content", comment_content)
-                .setParameter("comment_sequence", comment_sequence)
                 .executeUpdate();
-
+        return 1;
     }
 
 }
