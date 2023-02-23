@@ -18,8 +18,6 @@ import java.util.*;
 public class CommentService {
     @Autowired
     public CommentRepository commentRepository;
-
-
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -28,10 +26,9 @@ public class CommentService {
     }
 
     public List<Map<String, Object>> findComment(Map<String, Object> reqMap) {
-        Map<String, Object> result = new HashMap<>();
         int board_id = Integer.parseInt(reqMap.get("board_id").toString());
 
-        // 댓글 작성 순서대로 댓글 출력하는  query
+        // 댓글 작성 순서대로 댓글 출력하는 query
         String query = "  SELECT comment_sequence" +
                 "              , comment_id, parent_id, depth, comment_writer, comment_content, comment_write_date, comment_modify_date " +
                 "           FROM ( " +
@@ -47,12 +44,15 @@ public class CommentService {
         Query getComment = entityManager.createNativeQuery(query);
         List<Object[]> resultList = getComment.setParameter("board_id", board_id).getResultList();
 
+        // 게시글 번호, 내용, depth를 반환하는 변수
         List<Map<String, Object>> rtnList = new ArrayList<Map<String, Object>>();
+
         int resultListSize = resultList.size();
         for (int i = 0; i < resultListSize; i++) {
             Object[] item = resultList.get(i);
             Map<String, Object> rtnMap = new HashMap<String, Object>();
 
+            // depth만큼 답글 구분하기
             String depthChar = "";
             int depth = item[3] == null ? 0 : (Integer) item[3];
             for (int j = 0; j < depth; j++) {
@@ -68,15 +68,15 @@ public class CommentService {
     }
 
 
+    @Transactional
     public int insertComment(Map<String, Object> reqMap) {
         int board_id = Integer.parseInt(reqMap.get("board_id").toString());
         int depth = Integer.parseInt(reqMap.get("depth").toString());
-        System.out.println("depth : " + depth);
         int parent_id = Integer.parseInt(reqMap.get("parent_id").toString());
         String comment_writer = reqMap.get("comment_writer").toString();
         String comment_content = reqMap.get("comment_content").toString();
 
-
+        // 댓글(답글) 작성하기
         String query = "INSERT INTO Comment(depth, comment_sequence , parent_id, comment_writer, comment_content) VALUES(:depth, :board_id, :parent_id, :comment_writer, :comment_content)";
 
         entityManager.createNativeQuery(query, Comment.class)
@@ -87,22 +87,17 @@ public class CommentService {
                 .setParameter("comment_content", comment_content)
                 .executeUpdate();
 
-        if (depth == 0) {
-            String query1 = "UPDATE Comment SET parent_id = LAST_INSERT_ID() ORDER BY comment_id DESC LIMIT 1";
-            entityManager.createNativeQuery(query1, Comment.class)
-                    .executeUpdate();
-        }
+        // 최상단 댓글의 부모키를 자기 자신의 키로 변경
+        if (depth == 0) entityManager.createNativeQuery("UPDATE Comment SET parent_id = LAST_INSERT_ID() ORDER BY comment_id DESC LIMIT 1", Comment.class).executeUpdate();
+
         return 1;
     }
 
     @Transactional
     public int deleteAxios(Map<String, Object> reqMap){
         List<Integer> idList = (List<Integer>) reqMap.get("ids");
-//        System.out.println(reqMap);
-//        String list = reqMap.values().toString();
-//        String idList = list.substring(2, list.length()-2);
-//        System.out.println("idList : " + idList);
 
+        // checkbox로 선택한 모든 게시물의 댓글 삭제
         String tsql = "";
         tsql += " DELETE FROM Comment WHERE comment_sequence in ( ";
         int idListSize = idList.size();
@@ -110,16 +105,13 @@ public class CommentService {
         for (int i = 1; i < idListSize; i++) tsql += ", " + idList.get(i);
         tsql += ")";
 
-        System.out.println("tsql : " + tsql);
-
         entityManager.createNativeQuery(tsql, Comment.class)
                 .executeUpdate();
 
+        // checkbox로 선택한 모든 게시글 삭제
         entityManager.createNativeQuery("DELETE FROM Board WHERE board_id in (:idList)", Board.class)
                 .setParameter("idList", idList)
                 .executeUpdate();
         return 1;
     }
-
-
 }

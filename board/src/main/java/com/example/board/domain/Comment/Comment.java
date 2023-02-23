@@ -9,8 +9,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-//@Data
-//@ToString
 @Table(name = "Comment")
 public class Comment extends BaseTime {
     @Column

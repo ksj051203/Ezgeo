@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Map;
 
 @Controller
@@ -23,19 +22,21 @@ public class BoardController {
     @Autowired
     public final CommentService commentService;
 
+    //게시글 생성하기
     @GetMapping("/create")
     public String createBoard(Model model, Board board){
         model.addAttribute("board", board);
         return "create";
     };
 
+    // 게시글 생성 완료
     @PostMapping("/createSuccess")
     public String createSuccess(Board board){
         boardService.createFinish(board);
         return "redirect:/list";
     }
 
-
+    // 게시글 리스트
     @GetMapping(value="/list")
     public String pagingBoard( @RequestParam Map<String, Object> reqMap, Model model){
 
@@ -48,7 +49,6 @@ public class BoardController {
         String searchType = "";
         if(!ObjectUtils.isEmpty(reqMap.get("searchType"))) searchType = reqMap.get("searchType").toString();
 
-
         reqMap.put("nowPage", nowPage);
         reqMap.put("searchType", searchType);
         reqMap.put("searchKeyword", searchKeyword);
@@ -59,6 +59,7 @@ public class BoardController {
         return "list";
     }
 
+    // 게시글 상세보기
     @RequestMapping(value="/list/{board_id}", method={RequestMethod.GET})
     public String findBoard(@PathVariable("board_id") Integer board_id, Map<String, Object> reqMap, Model model) throws  Exception{
         reqMap.put("board_id", board_id);
@@ -68,38 +69,38 @@ public class BoardController {
     };
 
 
+    // 댓글 생성하기(form)
     @RequestMapping(value="/list/addComment/{board_id}", method={RequestMethod.POST }, consumes = "application/x-www-form-urlencoded")
-    @Transactional
-    public String addComment(Model model, @RequestParam Map<String, Object> reqMap) throws  Exception{
+    public String addComment(@RequestParam Map<String, Object> reqMap){
         System.out.println("reqMap : " + reqMap);
-        int rtn = commentService.insertComment(reqMap);
+        commentService.insertComment(reqMap);
         int board_id = Integer.parseInt(reqMap.get("board_id").toString());
         return "redirect:/list/"+board_id;
     };
 
-    @Transactional
+    // 답글 생성하기(axios)
     @RequestMapping(value="/list/addComment/axios/{board_id}", method={RequestMethod.POST}, consumes="application/json")
-    public String addAxiosComment(Model model, @RequestBody Map<String, Object> reqMap) throws Exception{
-        int rtn = commentService.insertComment(reqMap);
+    public String addAxiosComment(@RequestBody Map<String, Object> reqMap){
+        commentService.insertComment(reqMap);
         int board_id = Integer.parseInt(reqMap.get("board_id").toString());
         return "redirect:/list/"+board_id;
     };
 
-
+    // 게시글 삭제하기
     @GetMapping("/delete")
     public String deleteBoard(Integer board_id){
         boardService.deleteBoard(board_id);
         return "redirect:/list";
     };
 
-
+    // 게시글 삭제하기(checkbox)
     @PostMapping("/delete/axios")
     public String deleteAxiosBoard(@RequestBody Map<String, Object> comment_sequence) throws Exception{
         commentService.deleteAxios(comment_sequence);
         return "redirect:/list";
     }
 
-
+    // 게시글 수정하기
     @GetMapping("/modify/{board_id}")
     public String modifyBoard(@PathVariable("board_id") Integer board_id, Model model){
         Board board = boardService.findBoard(board_id);
@@ -107,6 +108,7 @@ public class BoardController {
         return "modify";
     }
 
+    // 게시글 수정 적용하기
     @PostMapping("/update/{board_id}")
     public String updateBoard(@PathVariable("board_id") Integer board_id, BoardDto boardDto){
         boardService.update(board_id, boardDto);
