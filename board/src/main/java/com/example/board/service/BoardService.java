@@ -4,10 +4,10 @@ import com.example.board.domain.Board.Board;
 import com.example.board.domain.Board.BoardDto;
 import com.example.board.domain.Comment.Comment;
 import com.example.board.repository.BoardRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
 
 import javax.persistence.EntityManager;
@@ -31,10 +31,6 @@ public class BoardService {
     //하단의 tabSize를 5로 고침
 
     private final int RECORD_LENGTH = 10;
-
-    public BoardService(BoardRepository boardRepository) {
-        this.boardRepository = boardRepository;
-    }
 
     public void createFinish(Board board) {
         boardRepository.save(board);
@@ -158,7 +154,12 @@ public class BoardService {
         return search + page + " ' " + (condition ? "style='display:none'" : "") + "> " + content + " </a>";
     }
 
+    @Transactional
     public void deleteBoard(Integer board_id) {
+        entityManager.createNativeQuery("DELETE FROM Comment WHERE comment_sequence = :board_id", Comment.class)
+                .setParameter("board_id", board_id)
+                .executeUpdate();
+
         boardRepository.deleteById(board_id);
     }
 }

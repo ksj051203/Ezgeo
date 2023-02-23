@@ -1,7 +1,6 @@
 package com.example.board.controller;
 import com.example.board.domain.Board.Board;
 import com.example.board.domain.Board.BoardDto;
-import com.example.board.domain.Comment.Comment;
 import com.example.board.service.BoardService;
 import com.example.board.service.CommentService;
 import lombok.AllArgsConstructor;
@@ -78,21 +77,28 @@ public class BoardController {
         return "redirect:/list/"+board_id;
     };
 
-    @RequestMapping(value="/list/addComment/axios/{board_id}", method={RequestMethod.POST}, consumes="application/json")
     @Transactional
-    public String addAxiosComment(Model model, @RequestBody Map<String, Object> reqMap) throws  Exception{
-        System.out.println("reqMap : " + reqMap);
+    @RequestMapping(value="/list/addComment/axios/{board_id}", method={RequestMethod.POST}, consumes="application/json")
+    public String addAxiosComment(Model model, @RequestBody Map<String, Object> reqMap) throws Exception{
         int rtn = commentService.insertComment(reqMap);
         int board_id = Integer.parseInt(reqMap.get("board_id").toString());
         return "redirect:/list/"+board_id;
     };
 
 
-    @GetMapping ("/delete")
+    @GetMapping("/delete")
     public String deleteBoard(Integer board_id){
         boardService.deleteBoard(board_id);
         return "redirect:/list";
     };
+
+
+    @PostMapping("/delete/axios")
+    public String deleteAxiosBoard(@RequestBody Map<String, Object> comment_sequence) throws Exception{
+        commentService.deleteAxios(comment_sequence);
+        return "redirect:/list";
+    }
+
 
     @GetMapping("/modify/{board_id}")
     public String modifyBoard(@PathVariable("board_id") Integer board_id, Model model){

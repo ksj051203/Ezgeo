@@ -1,5 +1,6 @@
 package com.example.board.service;
 
+import com.example.board.domain.Board.Board;
 import com.example.board.domain.Comment.Comment;
 import com.example.board.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +25,6 @@ public class CommentService {
 
     public CommentService(CommentRepository commentRepository) {
         this.commentRepository = commentRepository;
-    }
-
-
-    public Comment commentFinish(Comment comment) {
-        Comment cm = commentRepository.save(comment);
-        return cm;
     }
 
     public List<Map<String, Object>> findComment(Map<String, Object> reqMap) {
@@ -57,7 +52,7 @@ public class CommentService {
         for (int i = 0; i < resultListSize; i++) {
             Object[] item = resultList.get(i);
             Map<String, Object> rtnMap = new HashMap<String, Object>();
-//
+
             String depthChar = "";
             int depth = item[3] == null ? 0 : (Integer) item[3];
             for (int j = 0; j < depth; j++) {
@@ -72,7 +67,6 @@ public class CommentService {
         return rtnList;
     }
 
-    ;
 
     public int insertComment(Map<String, Object> reqMap) {
         int board_id = Integer.parseInt(reqMap.get("board_id").toString());
@@ -100,5 +94,32 @@ public class CommentService {
         }
         return 1;
     }
+
+    @Transactional
+    public int deleteAxios(Map<String, Object> reqMap){
+        List<Integer> idList = (List<Integer>) reqMap.get("ids");
+//        System.out.println(reqMap);
+//        String list = reqMap.values().toString();
+//        String idList = list.substring(2, list.length()-2);
+//        System.out.println("idList : " + idList);
+
+        String tsql = "";
+        tsql += " DELETE FROM Comment WHERE comment_sequence in ( ";
+        int idListSize = idList.size();
+        tsql += idList.get(0);
+        for (int i = 1; i < idListSize; i++) tsql += ", " + idList.get(i);
+        tsql += ")";
+
+        System.out.println("tsql : " + tsql);
+
+        entityManager.createNativeQuery(tsql, Comment.class)
+                .executeUpdate();
+
+        entityManager.createNativeQuery("DELETE FROM Board WHERE board_id in (:idList)", Board.class)
+                .setParameter("idList", idList)
+                .executeUpdate();
+        return 1;
+    }
+
 
 }

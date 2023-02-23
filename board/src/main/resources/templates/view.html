@@ -104,31 +104,9 @@
                         alert(e);
                     }
                 })
-                //writer는 input1의 내용, content는 input2의 내용, comment_id는 a.i, parent_id는 id로 넣어주면 됨
             })
 
         }
-
-
-
-    document.getElementById('axiosTest').addEventListener('click', async function (){
-        try {
-            const rtnData = await axios.post('/axios',
-                {
-                    parent_id : 36,
-                    comment_sequence : 1,
-                    comment_writer : 'sejin',
-                    comment_content : 'hi'
-                },
-                {
-                    "Content-Type" : `application/json`,
-                },
-
-            );
-        } catch (e) {
-            alert(e);
-        }
-    });
 
 </script>
 </body>
