@@ -25,6 +25,9 @@ public class Comment extends BaseTime {
     private String comment_writer;
     @Column
     private String comment_content;
+
+    @Column
+    private String comment_password;
     @Column
     private LocalDateTime comment_write_date;
     @Column

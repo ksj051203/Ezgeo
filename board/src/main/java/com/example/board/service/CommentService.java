@@ -75,9 +75,10 @@ public class CommentService {
         int parent_id = Integer.parseInt(reqMap.get("parent_id").toString());
         String comment_writer = reqMap.get("comment_writer").toString();
         String comment_content = reqMap.get("comment_content").toString();
+        String comment_password = reqMap.get("comment_password").toString();
 
         // 댓글(답글) 작성하기
-        String query = "INSERT INTO Comment(depth, comment_sequence , parent_id, comment_writer, comment_content) VALUES(:depth, :board_id, :parent_id, :comment_writer, :comment_content)";
+        String query = "INSERT INTO Comment(depth, comment_sequence , parent_id, comment_writer, comment_content, comment_password) VALUES(:depth, :board_id, :parent_id, :comment_writer, :comment_content, :comment_password)";
 
         entityManager.createNativeQuery(query, Comment.class)
                 .setParameter("board_id", board_id)
@@ -85,6 +86,7 @@ public class CommentService {
                 .setParameter("parent_id", parent_id)
                 .setParameter("comment_writer", comment_writer)
                 .setParameter("comment_content", comment_content)
+                .setParameter("comment_password", comment_password)
                 .executeUpdate();
 
         // 최상단 댓글의 부모키를 자기 자신의 키로 변경
@@ -103,6 +105,7 @@ public class CommentService {
         int idListSize = idList.size();
         tsql += idList.get(0);
         for (int i = 1; i < idListSize; i++) tsql += ", " + idList.get(i);
+
         tsql += ")";
 
         entityManager.createNativeQuery(tsql, Comment.class)
@@ -112,6 +115,23 @@ public class CommentService {
         entityManager.createNativeQuery("DELETE FROM Board WHERE board_id in (:idList)", Board.class)
                 .setParameter("idList", idList)
                 .executeUpdate();
+        return 1;
+    }
+
+    @Transactional
+    public int deletePassword(Map<String, Object> reqMap){
+        int comment_sequence = Integer.parseInt(reqMap.get("board_id").toString());
+        int comment_id = Integer.parseInt(reqMap.get("idCheck").toString());
+        String comment_password = reqMap.get("password").toString();
+
+        String query = "DELETE FROM Comment WHERE comment_sequence = :comment_sequence and comment_password = :comment_password and comment_id = :comment_id";
+
+        entityManager.createNativeQuery(query, Comment.class)
+                .setParameter("comment_sequence", comment_sequence)
+                .setParameter("comment_id", comment_id)
+                .setParameter("comment_password", comment_password)
+                .executeUpdate();
+
         return 1;
     }
 }

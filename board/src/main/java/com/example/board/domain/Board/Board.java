@@ -3,11 +3,14 @@ package com.example.board.domain.Board;
 import javax.persistence.*;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Data
 @Getter
+@Setter
 @Table(name="board")
 public class Board extends BaseTime {
     @Id
@@ -23,8 +26,5 @@ public class Board extends BaseTime {
     private LocalDateTime board_write_date;
     @Column
     private LocalDateTime board_modify_date;
-
-
-
 
 }

@@ -68,6 +68,21 @@ public class BoardController {
         return "view";
     };
 
+    // 게시글 수정하기
+    @GetMapping("/modify/{board_id}")
+    public String modifyBoard(@PathVariable("board_id") Integer board_id, Model model){
+        Board board = boardService.findBoard(board_id);
+        model.addAttribute("board", board);
+        return "modify";
+    }
+
+    // 게시글 수정 적용하기
+    @PostMapping("/update/{board_id}")
+    public String updateBoard(@PathVariable("board_id") Integer board_id, BoardDto boardDto){
+        boardService.update(board_id, boardDto);
+        return "redirect:/list";
+    };
+
 
     // 댓글 생성하기(form)
     @RequestMapping(value="/list/addComment/{board_id}", method={RequestMethod.POST }, consumes = "application/x-www-form-urlencoded")
@@ -86,33 +101,30 @@ public class BoardController {
         return "redirect:/list/"+board_id;
     };
 
-    // 게시글 삭제하기
+
+    // 게시글(+댓글) 삭제하기
     @GetMapping("/delete")
     public String deleteBoard(Integer board_id){
         boardService.deleteBoard(board_id);
         return "redirect:/list";
     };
 
-    // 게시글 삭제하기(checkbox)
+    // 게시글(+댓글) 삭제하기(checkbox)
     @PostMapping("/delete/axios")
-    public String deleteAxiosBoard(@RequestBody Map<String, Object> comment_sequence) throws Exception{
+    public String deleteAxiosBoard(@RequestBody Map<String, Object> comment_sequence){
         commentService.deleteAxios(comment_sequence);
         return "redirect:/list";
     }
 
-    // 게시글 수정하기
-    @GetMapping("/modify/{board_id}")
-    public String modifyBoard(@PathVariable("board_id") Integer board_id, Model model){
-        Board board = boardService.findBoard(board_id);
-        model.addAttribute("board", board);
-        return "modify";
+    // 댓글 삭제하기
+    @PostMapping("/delete/password")
+    public String deletePassword(@RequestBody Map<String, Object> reqMap){
+        System.out.println("reqMap : "  + reqMap);
+        commentService.deletePassword(reqMap);
+        int board_id = Integer.parseInt(reqMap.get("board_id").toString());
+        return "redirect:/list/" + board_id;
     }
 
-    // 게시글 수정 적용하기
-    @PostMapping("/update/{board_id}")
-    public String updateBoard(@PathVariable("board_id") Integer board_id, BoardDto boardDto){
-        boardService.update(board_id, boardDto);
-        return "redirect:/list";
-    };
+
 
 }
