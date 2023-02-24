@@ -2,6 +2,7 @@ package com.example.board.service;
 
 import com.example.board.domain.Board.Board;
 import com.example.board.domain.Comment.Comment;
+import com.example.board.domain.Comment.CommentDto;
 import com.example.board.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,6 +116,7 @@ public class CommentService {
         entityManager.createNativeQuery("DELETE FROM Board WHERE board_id in (:idList)", Board.class)
                 .setParameter("idList", idList)
                 .executeUpdate();
+
         return 1;
     }
 
@@ -122,7 +124,7 @@ public class CommentService {
     public int deletePassword(Map<String, Object> reqMap){
         int comment_sequence = Integer.parseInt(reqMap.get("board_id").toString());
         int comment_id = Integer.parseInt(reqMap.get("idCheck").toString());
-        String comment_password = reqMap.get("password").toString();
+        String comment_password = reqMap.get("comment_password").toString();
 
         // 비밀번호가 일치한다면 선택한 댓글 삭제
         String query = "DELETE FROM Comment WHERE comment_sequence = :comment_sequence and comment_id = :comment_id and comment_password = :comment_password";
@@ -133,6 +135,16 @@ public class CommentService {
                 .setParameter("comment_password", comment_password)
                 .executeUpdate();
 
+        return 1;
+    }
+
+    public int modifyComment(CommentDto commentDto){
+        int comment_id = commentDto.getComment_id();
+        Comment update = commentRepository.findById(comment_id).orElse(null);
+        update.setComment_writer(commentDto.getComment_writer());
+        update.setComment_content(commentDto.getComment_content());
+        update.setComment_password(commentDto.getComment_password());
+        commentRepository.save(update);
         return 1;
     }
 }

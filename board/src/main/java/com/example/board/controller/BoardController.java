@@ -1,6 +1,7 @@
 package com.example.board.controller;
 import com.example.board.domain.Board.Board;
 import com.example.board.domain.Board.BoardDto;
+import com.example.board.domain.Comment.CommentDto;
 import com.example.board.service.BoardService;
 import com.example.board.service.CommentService;
 import lombok.AllArgsConstructor;
@@ -95,12 +96,17 @@ public class BoardController {
     // 답글 생성하기(axios)
     @RequestMapping(value="/list/addComment/axios/{board_id}", method={RequestMethod.POST}, consumes="application/json")
     public String addAxiosComment(@RequestBody Map<String, Object> reqMap){
-        System.out.println("reqMap : "+ reqMap);
         commentService.insertComment(reqMap);
         int board_id = Integer.parseInt(reqMap.get("board_id").toString());
         return "redirect:/list/" + board_id;
     };
 
+    @PostMapping("/modify/comment/{board_id}")
+    public String modifyComment(@RequestBody CommentDto commentDto){
+        int board_id = commentDto.getComment_sequence();
+        commentService.modifyComment(commentDto);
+        return "redirect:/list/" + board_id;
+    }
 
     // 게시글(+댓글) 삭제하기
     @GetMapping("/delete")
@@ -119,6 +125,7 @@ public class BoardController {
     // 특정 댓글 삭제하기(비밀번호 일치)
     @PostMapping("/delete/password")
     public String deletePassword(@RequestBody Map<String, Object> reqMap){
+        System.out.println("reqMap : " + reqMap);
         commentService.deletePassword(reqMap);
         int board_id = Integer.parseInt(reqMap.get("board_id").toString());
         return "redirect:/list/" + board_id;

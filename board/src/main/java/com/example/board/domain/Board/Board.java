@@ -1,7 +1,6 @@
 package com.example.board.domain.Board;
 
 import javax.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +13,6 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Table(name="board")
-@EntityListeners(AuditingEntityListener.class)
 public class Board extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
