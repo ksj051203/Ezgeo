@@ -1,0 +1,12 @@
+
+  SELECT *
+    FROM (
+		    SELECT *  
+			     , (CASE DEPTH WHEN 0 THEN COMMENT_ID ELSE PARENT_ID END) AS TTT
+			  FROM COMMENT
+		     WHERE 1=1
+         ) T
+ORDER BY TTT
+       , COMMENT_ID
+    ;
+
