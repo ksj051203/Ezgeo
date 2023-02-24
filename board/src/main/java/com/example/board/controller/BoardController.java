@@ -85,9 +85,8 @@ public class BoardController {
 
 
     // 댓글 생성하기(form)
-    @RequestMapping(value="/list/addComment/{board_id}", method={RequestMethod.POST }, consumes = "application/x-www-form-urlencoded")
+    @RequestMapping(value="/list/addComment/{board_id}", method={RequestMethod.POST}, consumes = "application/x-www-form-urlencoded")
     public String addComment(@RequestParam Map<String, Object> reqMap){
-        System.out.println("reqMap : " + reqMap);
         commentService.insertComment(reqMap);
         int board_id = Integer.parseInt(reqMap.get("board_id").toString());
         return "redirect:/list/"+board_id;
@@ -96,9 +95,10 @@ public class BoardController {
     // 답글 생성하기(axios)
     @RequestMapping(value="/list/addComment/axios/{board_id}", method={RequestMethod.POST}, consumes="application/json")
     public String addAxiosComment(@RequestBody Map<String, Object> reqMap){
+        System.out.println("reqMap : "+ reqMap);
         commentService.insertComment(reqMap);
         int board_id = Integer.parseInt(reqMap.get("board_id").toString());
-        return "redirect:/list/"+board_id;
+        return "redirect:/list/" + board_id;
     };
 
 
@@ -116,10 +116,9 @@ public class BoardController {
         return "redirect:/list";
     }
 
-    // 댓글 삭제하기
+    // 특정 댓글 삭제하기(비밀번호 일치)
     @PostMapping("/delete/password")
     public String deletePassword(@RequestBody Map<String, Object> reqMap){
-        System.out.println("reqMap : "  + reqMap);
         commentService.deletePassword(reqMap);
         int board_id = Integer.parseInt(reqMap.get("board_id").toString());
         return "redirect:/list/" + board_id;

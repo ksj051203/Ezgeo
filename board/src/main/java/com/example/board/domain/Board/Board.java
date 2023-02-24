@@ -3,15 +3,18 @@ package com.example.board.domain.Board;
 import javax.persistence.*;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
 @Getter
 @Setter
+@NoArgsConstructor
 @Table(name="board")
+@EntityListeners(AuditingEntityListener.class)
 public class Board extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,9 +25,5 @@ public class Board extends BaseTime {
     private String board_content;
     @Column
     private String board_writer;
-    @Column
-    private LocalDateTime board_write_date;
-    @Column
-    private LocalDateTime board_modify_date;
 
 }

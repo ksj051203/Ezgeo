@@ -33,8 +33,8 @@
 
     <div th:each="comment, loop: ${comment}">
             <span th:text="${comment.content}"></span>
-            <button th:id = "${comment.id}" class = "writeComment" type="submit" th:attr="data-depth=${comment.depth}">댓글 등록</button>
-            <button th:id = "${comment.id}" class = "deleteComment" type="submit" th:attr="data-depthDele=${comment.depth}">댓글 삭제</button>
+            <button th:id = "${comment.id}" class = "writeComment" type="submit" th:attr="data-depth=${comment.depth}">등록</button>
+            <button th:id = "${comment.id}" class = "deleteComment" type="submit" th:attr="data-depthDele=${comment.depth}">삭제</button>
     </div>
 
 <script>
@@ -109,15 +109,11 @@
                             },
                         )
                     }
-
                     catch (e){
                         alert(e);
                     }
                 })
-
-
             })
-
         }
 
         $(document).on("click",".deleteComment", async (e)=>{
@@ -143,9 +139,6 @@
             alert('삭제 완료')
             location.reload();
         });
-
-
-
 </script>
 </body>
 </html>

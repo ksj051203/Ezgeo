@@ -38,7 +38,7 @@ public class CommentService {
                 "                ) T " +
                 "          WHERE comment_sequence = :board_id " +
                 "       ORDER BY ttt " +
-                "              , comment_id ";
+                "              , comment_id";
 
 
         Query getComment = entityManager.createNativeQuery(query);
@@ -124,7 +124,8 @@ public class CommentService {
         int comment_id = Integer.parseInt(reqMap.get("idCheck").toString());
         String comment_password = reqMap.get("password").toString();
 
-        String query = "DELETE FROM Comment WHERE comment_sequence = :comment_sequence and comment_password = :comment_password and comment_id = :comment_id";
+        // 비밀번호가 일치한다면 선택한 댓글 삭제
+        String query = "DELETE FROM Comment WHERE comment_sequence = :comment_sequence and comment_id = :comment_id and comment_password = :comment_password";
 
         entityManager.createNativeQuery(query, Comment.class)
                 .setParameter("comment_sequence", comment_sequence)
