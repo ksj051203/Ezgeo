@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
 import java.util.Map;
 
 @Controller
@@ -84,7 +86,6 @@ public class BoardController {
         return "redirect:/list";
     };
 
-
     // 댓글 생성하기(form)
     @RequestMapping(value="/list/addComment/{board_id}", method={RequestMethod.POST}, consumes = "application/x-www-form-urlencoded")
     public String addComment(@RequestParam Map<String, Object> reqMap){
@@ -101,12 +102,14 @@ public class BoardController {
         return "redirect:/list/" + board_id;
     };
 
+    // 원하는 댓글 수정
     @PostMapping("/modify/comment/{board_id}")
     public String modifyComment(@RequestBody CommentDto commentDto){
         int board_id = commentDto.getComment_sequence();
         commentService.modifyComment(commentDto);
         return "redirect:/list/" + board_id;
     }
+
 
     // 게시글(+댓글) 삭제하기
     @GetMapping("/delete")
@@ -124,11 +127,20 @@ public class BoardController {
 
     // 특정 댓글 삭제하기(비밀번호 일치)
     @PostMapping("/delete/password")
-    public String deletePassword(@RequestBody Map<String, Object> reqMap){
-        System.out.println("reqMap : " + reqMap);
-        commentService.deletePassword(reqMap);
-        int board_id = Integer.parseInt(reqMap.get("board_id").toString());
-        return "redirect:/list/" + board_id;
+    @ResponseBody
+    public Map<String, Object> deletePassword(@RequestBody Map<String, Object> reqMap){
+        Map<String, Object> rtnMap = new HashMap<String, Object>();
+        rtnMap.put("delete", commentService.deletePassword(reqMap));
+        return rtnMap;
+    }
+
+    // 수정 시, 수정 전 값들 기억하기
+    @PostMapping("/modify/remember")
+    @ResponseBody
+    public Map<String, Object> modifyRemember(@RequestBody Map<String, Object> reqMap){
+        Map<String, Object> rtnMap = new HashMap<String, Object>();
+        rtnMap.put("modify", commentService.modifyRemember(reqMap));
+        return rtnMap;
     }
 
 

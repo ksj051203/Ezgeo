@@ -39,54 +39,49 @@
     </div>
 
 <script>
-        const writeComment = document.querySelectorAll('.writeComment');
-        const writeCommentSize = writeComment.length;
-
-        let path = location.pathname;
-        console.log(path);
-        let board_id = path.split('/')[2];
-
-
+        // 동적으로 버튼 생성
         function createElement(){
-            const input1 = document.createElement("input");
-            // 내용
-            const input2 = document.createElement("input");
 
-            const input3 = document.createElement("input");
-            // 등록
-            const button1 = document.createElement("button");
-            // 삭제
-            const button2 = document.createElement("button");
+            const writer = document.createElement("input");
+            const content = document.createElement("input");
+            const password = document.createElement("input");
+            const write = document.createElement("button");
+            const modify = document.createElement("button");
+            const cancle = document.createElement("button");
 
-            const button3 = document.createElement("button");
+            writer.innerHTML = "작성자";
+            content.innerHTML = "내용";
+            password.innerHTML = "비밀번호"
+            write.innerHTML = "답글 작성";
+            modify.innerHTML="수정";
+            cancle.innerHTML="취소";
 
-
-            input1.innerHTML = "작성자";
-            input2.innerHTML = "내용";
-            input3.innerHTML = "비밀번호"
-            button1.innerHTML = "답글 작성";
-            button2.innerHTML="취소";
-            button3.innerHTML="수정";
-
-            input1.setAttribute("id", "comment_writer");
-            input2.setAttribute("id", "comment_content");
-            input3.setAttribute("id", "comment_password");
-            button1.setAttribute("id", "write");
-            button3.setAttribute("id", "modify");
-
+            writer.setAttribute("id", "comment_writer");
+            content.setAttribute("id", "comment_content");
+            password.setAttribute("id", "comment_password");
+            write.setAttribute("id", "write");
+            modify.setAttribute("id", "modify");
 
             const divEl = document.createElement("div");
 
-            divEl.appendChild(input1);
-            divEl.appendChild(input2);
-            divEl.appendChild(input3);
-            divEl.appendChild(button1);
-            divEl.appendChild(button2);
-            divEl.appendChild(button3)
+            divEl.appendChild(writer);
+            divEl.appendChild(content);
+            divEl.appendChild(password);
+            divEl.appendChild(write);
+            divEl.appendChild(modify);
+            divEl.appendChild(cancle)
 
             document.body.appendChild(divEl);
-
         }
+
+        // 동적 생성 => 답글 작성 버튼을 눌렀을 때
+        const writeComment = document.querySelectorAll('.writeComment');
+        const writeCommentSize = writeComment.length;
+
+        // 현재 게시판 번호를 가져오기
+        let path = location.pathname;
+        let board_id = path.split('/')[2];
+
 
         for(let i = 0; i<writeCommentSize; i++){
             let comment = writeComment[i];
@@ -95,7 +90,7 @@
                 let depth = parseInt(comment.dataset.depth);
                 createElement();
 
-                // button1이 눌러진다면 axios post로 data 보내기
+                // 동적 생성 => 답글 작성 버튼을 눌렀을 때
                 document.getElementById("write").addEventListener("click", async function(){
 
                     try{
@@ -103,7 +98,7 @@
                         let comment_content = document.getElementById('comment_content').value;
                         let comment_password = document.getElementById("comment_password").value;
 
-                        console.log(`depth:${depth}`)
+                        // 답글 생성하기
                         await axios.post(`/list/addComment/axios/${board_id}`,
                             {
 
@@ -126,22 +121,23 @@
             })
         }
 
+        // 삭제 버튼을 눌렀을 때
         $(document).on("click",".deleteComment", async (e)=>{
-
-            var comment_password = prompt("비밀번호를 입력하세요", "");
-
+            let comment_password = prompt("비밀번호를 입력하세요", "");
             let idCheck = $(e.target).attr("id");
 
-            // axios 처리
             const axiosConfig = {
                 headers:{
                     "Content-Type": "application/json"
                 }
             }
 
+            // 패스워드가 맞다면 댓글 삭제
             const {data} = await axios.post("/delete/password", {idCheck, board_id, comment_password}, axiosConfig);
 
-            if (!data.rtn=='Y') {
+            console.log(`data : ${JSON.stringify(data.delete)}`)
+
+            if (!data.delete=='Y') {
                 alert('삭제 실패');
                 return;
             }
@@ -150,17 +146,32 @@
             location.reload();
         });
 
+
+        // 수정 버튼을 눌렀을 때
         $(document).on("click", ".alterComment", async function(e){
             createElement();
             let id = $(e.target).attr("id");
-            $(document).on("click", "#modify", async  function(){
+            const {data:data2} = await axios.post('/modify/remember' ,{comment_id : id, comment_sequence : board_id});
+            console.log(`data2 : ${JSON.stringify(data2.modify)}`);
+
+            // 수정 버튼 누를 시, 전에 입력했던 값 input 창에 출력하기
+            const rtnData = data2.modify;
+
+            document.getElementById('comment_writer').value = rtnData.comment_writer;
+            document.getElementById('comment_content').value = rtnData.comment_content;
+            document.getElementById("comment_password").value = rtnData.comment_password;
+
+            // 동적 생성 => 수정 버튼을 눌렀을 때
+            $(document).on("click", "#modify", async function(){
                 let comment_writer = document.getElementById('comment_writer').value;
                 let comment_content = document.getElementById('comment_content').value;
-                let comment_password = document.getElementById("comment_password").value;
-                const {data} = await axios.post(`/modify/comment/${board_id}` , {comment_writer, comment_content, comment_password, comment_id : id, comment_sequence : board_id})
+                let comment_password = document.getElementById('comment_password').value;
+
+                // 답글 수정하기
+                const {data:data1} = await axios.post(`/modify/comment/${board_id}` , {comment_writer, comment_content, comment_password, comment_id : id, comment_sequence : board_id});
+                console.log(`data1 : ${data1.}`)
             })
         })
-
 
 </script>
 </body>

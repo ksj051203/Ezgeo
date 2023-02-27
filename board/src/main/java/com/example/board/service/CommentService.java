@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.util.*;
 
 @Service
@@ -60,7 +61,8 @@ public class CommentService {
                 depthChar += "ㄴ";
             }
 
-            rtnMap.put("content", depthChar + item[5].toString());
+            String content = item[5] == null ? "0" : (String) item[5];
+            rtnMap.put("content", depthChar + content.toString());
             rtnMap.put("id", item[1]);
             rtnMap.put("depth", item[3]);
             rtnList.add(rtnMap);
@@ -121,24 +123,53 @@ public class CommentService {
     }
 
     @Transactional
-    public int deletePassword(Map<String, Object> reqMap){
-        int comment_sequence = Integer.parseInt(reqMap.get("board_id").toString());
-        int comment_id = Integer.parseInt(reqMap.get("idCheck").toString());
-        String comment_password = reqMap.get("comment_password").toString();
+    public String deletePassword(Map<String, Object> reqMap) {
+        String rtn ="Y";
+        try{
+            int comment_sequence = Integer.parseInt(reqMap.get("board_id").toString());
+            int comment_id = Integer.parseInt(reqMap.get("idCheck").toString());
+            String comment_password = reqMap.get("comment_password").toString();
 
-        // 비밀번호가 일치한다면 선택한 댓글 삭제
-        String query = "DELETE FROM Comment WHERE comment_sequence = :comment_sequence and comment_id = :comment_id and comment_password = :comment_password";
+            // 비밀번호가 일치한다면 선택한 댓글 삭제
+            String query = "DELETE FROM Comment WHERE comment_sequence = :comment_sequence and comment_id = :comment_id and comment_password = :comment_password";
 
-        entityManager.createNativeQuery(query, Comment.class)
-                .setParameter("comment_sequence", comment_sequence)
-                .setParameter("comment_id", comment_id)
-                .setParameter("comment_password", comment_password)
-                .executeUpdate();
+            entityManager.createNativeQuery(query, Comment.class)
+                    .setParameter("comment_sequence", comment_sequence)
+                    .setParameter("comment_id", comment_id)
+                    .setParameter("comment_password", comment_password)
+                    .executeUpdate();
 
-        return 1;
+        } catch(Exception e){
+            e.printStackTrace();
+            rtn = "N";
+        }
+        return rtn;
     }
 
-    public int modifyComment(CommentDto commentDto){
+
+    public Map<String, Object> modifyRemember(Map<String, Object> reqMap){
+
+        Map<String, Object> rtnMap = new HashMap<>();
+        // 수정하기 전, 전에 입력한 데이터를 불러오기
+        int comment_id = Integer.parseInt(reqMap.get("comment_id").toString());
+
+        String query = "SELECT comment_writer, comment_content, comment_password FROM Comment WHERE comment_id = :comment_id";
+
+        Query rememberList = entityManager.createNativeQuery(query);
+
+        List<Object[]> beforeModify= rememberList.setParameter("comment_id", comment_id).getResultList();
+
+        for(Object[] obj : beforeModify){
+            rtnMap.put("comment_writer", obj[0]);
+            rtnMap.put("comment_content",  obj[1]);
+            rtnMap.put("comment_password", obj[2]);
+        }
+
+        return rtnMap;
+    }
+
+    public int modifyComment(CommentDto commentDto) {
+        // 원하는 댓글을 수정
         int comment_id = commentDto.getComment_id();
         Comment update = commentRepository.findById(comment_id).orElse(null);
         update.setComment_writer(commentDto.getComment_writer());
