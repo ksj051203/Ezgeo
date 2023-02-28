@@ -72,59 +72,73 @@ public class CommentService {
 
 
     @Transactional
-    public int insertComment(Map<String, Object> reqMap) {
-        int board_id = Integer.parseInt(reqMap.get("board_id").toString());
-        int depth = Integer.parseInt(reqMap.get("depth").toString());
-        int parent_id = Integer.parseInt(reqMap.get("parent_id").toString());
-        String comment_writer = reqMap.get("comment_writer").toString();
-        String comment_content = reqMap.get("comment_content").toString();
-        String comment_password = reqMap.get("comment_password").toString();
+    public String insertComment(Map<String, Object> reqMap) {
+        String rtn = "Y";
 
-        // 댓글(답글) 작성하기
-        String query = "INSERT INTO Comment(depth, comment_sequence , parent_id, comment_writer, comment_content, comment_password) VALUES(:depth, :board_id, :parent_id, :comment_writer, :comment_content, :comment_password)";
+        try{
+            int board_id = Integer.parseInt(reqMap.get("board_id").toString());
+            int depth = Integer.parseInt(reqMap.get("depth").toString());
+            int parent_id = Integer.parseInt(reqMap.get("parent_id").toString());
+            String comment_writer = reqMap.get("comment_writer").toString();
+            String comment_content = reqMap.get("comment_content").toString();
+            String comment_password = reqMap.get("comment_password").toString();
 
-        entityManager.createNativeQuery(query, Comment.class)
-                .setParameter("board_id", board_id)
-                .setParameter("depth", depth)
-                .setParameter("parent_id", parent_id)
-                .setParameter("comment_writer", comment_writer)
-                .setParameter("comment_content", comment_content)
-                .setParameter("comment_password", comment_password)
-                .executeUpdate();
+            // 댓글(답글) 작성하기
+            String query = "INSERT INTO Comment(depth, comment_sequence , parent_id, comment_writer, comment_content, comment_password) VALUES(:depth, :board_id, :parent_id, :comment_writer, :comment_content, :comment_password)";
 
-        // 최상단 댓글의 부모키를 자기 자신의 키로 변경
-        if (depth == 0) entityManager.createNativeQuery("UPDATE Comment SET parent_id = LAST_INSERT_ID() ORDER BY comment_id DESC LIMIT 1", Comment.class).executeUpdate();
+            entityManager.createNativeQuery(query, Comment.class)
+                    .setParameter("board_id", board_id)
+                    .setParameter("depth", depth)
+                    .setParameter("parent_id", parent_id)
+                    .setParameter("comment_writer", comment_writer)
+                    .setParameter("comment_content", comment_content)
+                    .setParameter("comment_password", comment_password)
+                    .executeUpdate();
 
-        return 1;
+            // 최상단 댓글의 부모키를 자기 자신의 키로 변경
+            if (depth == 0) entityManager.createNativeQuery("UPDATE Comment SET parent_id = LAST_INSERT_ID() ORDER BY comment_id DESC LIMIT 1", Comment.class).executeUpdate();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return rtn;
     }
 
     @Transactional
-    public int deleteAxios(Map<String, Object> reqMap){
-        List<Integer> idList = (List<Integer>) reqMap.get("ids");
+    public String deleteAxios(Map<String, Object> reqMap){
+        String rtn = "Y";
 
-        // checkbox로 선택한 모든 게시물의 댓글 삭제
-        String tsql = "";
-        tsql += " DELETE FROM Comment WHERE comment_sequence in ( ";
-        int idListSize = idList.size();
-        tsql += idList.get(0);
-        for (int i = 1; i < idListSize; i++) tsql += ", " + idList.get(i);
+        try{
+            List<Integer> idList = (List<Integer>) reqMap.get("ids");
 
-        tsql += ")";
+            // checkbox로 선택한 모든 게시물의 댓글 삭제
+            String tsql = "";
+            tsql += " DELETE FROM Comment WHERE comment_sequence in ( ";
+            int idListSize = idList.size();
+            tsql += idList.get(0);
+            for (int i = 1; i < idListSize; i++) tsql += ", " + idList.get(i);
 
-        entityManager.createNativeQuery(tsql, Comment.class)
-                .executeUpdate();
+            tsql += ")";
 
-        // checkbox로 선택한 모든 게시글 삭제
-        entityManager.createNativeQuery("DELETE FROM Board WHERE board_id in (:idList)", Board.class)
-                .setParameter("idList", idList)
-                .executeUpdate();
+            entityManager.createNativeQuery(tsql, Comment.class)
+                    .executeUpdate();
 
-        return 1;
+            // checkbox로 선택한 모든 게시글 삭제
+            entityManager.createNativeQuery("DELETE FROM Board WHERE board_id in (:idList)", Board.class)
+                    .setParameter("idList", idList)
+                    .executeUpdate();
+        }catch(Exception e){
+            e.printStackTrace();
+            return "N";
+        }
+
+        return rtn;
     }
 
     @Transactional
     public String deletePassword(Map<String, Object> reqMap) {
         String rtn ="Y";
+
         try{
             int comment_sequence = Integer.parseInt(reqMap.get("board_id").toString());
             int comment_id = Integer.parseInt(reqMap.get("idCheck").toString());
@@ -143,13 +157,14 @@ public class CommentService {
             e.printStackTrace();
             rtn = "N";
         }
+
         return rtn;
     }
 
 
     public Map<String, Object> modifyRemember(Map<String, Object> reqMap){
-
         Map<String, Object> rtnMap = new HashMap<>();
+
         // 수정하기 전, 전에 입력한 데이터를 불러오기
         int comment_id = Integer.parseInt(reqMap.get("comment_id").toString());
 
@@ -168,14 +183,22 @@ public class CommentService {
         return rtnMap;
     }
 
-    public int modifyComment(CommentDto commentDto) {
-        // 원하는 댓글을 수정
+    public String modifyComment(CommentDto commentDto) {
+        String rtn = "Y";
         int comment_id = commentDto.getComment_id();
-        Comment update = commentRepository.findById(comment_id).orElse(null);
-        update.setComment_writer(commentDto.getComment_writer());
-        update.setComment_content(commentDto.getComment_content());
-        update.setComment_password(commentDto.getComment_password());
-        commentRepository.save(update);
-        return 1;
+
+        try{
+            // 원하는 댓글을 수정
+            Comment update = commentRepository.findById(comment_id).orElse(null);
+            update.setComment_writer(commentDto.getComment_writer());
+            update.setComment_content(commentDto.getComment_content());
+            update.setComment_password(commentDto.getComment_password());
+            commentRepository.save(update);
+        } catch(Exception e){
+            e.printStackTrace();
+            return "N";
+        }
+
+        return rtn;
     }
 }

@@ -96,18 +96,30 @@ public class BoardController {
 
     // 답글 생성하기(axios)
     @RequestMapping(value="/list/addComment/axios/{board_id}", method={RequestMethod.POST}, consumes="application/json")
-    public String addAxiosComment(@RequestBody Map<String, Object> reqMap){
-        commentService.insertComment(reqMap);
-        int board_id = Integer.parseInt(reqMap.get("board_id").toString());
-        return "redirect:/list/" + board_id;
+    @ResponseBody
+    public Map<String, Object> addAxiosComment(@RequestBody Map<String, Object> reqMap){
+        System.out.println("reqMap : " + reqMap.toString());
+        Map<String, Object> rtnMap = new HashMap<String, Object>();
+        rtnMap.put("add", commentService.insertComment(reqMap));
+        return rtnMap;
     };
+
+    // 수정 시, 수정 전 값들 기억하기
+    @PostMapping("/modify/remember")
+    @ResponseBody
+    public Map<String, Object> modifyRemember(@RequestBody Map<String, Object> reqMap){
+        Map<String, Object> rtnMap = new HashMap<String, Object>();
+        rtnMap.put("modify", commentService.modifyRemember(reqMap));
+        return rtnMap;
+    }
 
     // 원하는 댓글 수정
     @PostMapping("/modify/comment/{board_id}")
-    public String modifyComment(@RequestBody CommentDto commentDto){
-        int board_id = commentDto.getComment_sequence();
-        commentService.modifyComment(commentDto);
-        return "redirect:/list/" + board_id;
+    @ResponseBody
+    public Map<String, Object> modifyComment(@RequestBody CommentDto commentDto){
+        Map<String, Object> rtnMap = new HashMap<String, Object>();
+        rtnMap.put("modify",commentService.modifyComment(commentDto));
+        return rtnMap;
     }
 
 
@@ -120,9 +132,11 @@ public class BoardController {
 
     // 게시글(+댓글) 삭제하기(checkbox)
     @PostMapping("/delete/axios")
-    public String deleteAxiosBoard(@RequestBody Map<String, Object> comment_sequence){
-        commentService.deleteAxios(comment_sequence);
-        return "redirect:/list";
+    @ResponseBody
+    public Map<String, Object> deleteAxiosBoard(@RequestBody Map<String, Object> reqMap){
+        Map<String, Object> rtnMap = new HashMap<String, Object>();
+        rtnMap.put("deleteAxios", commentService.deleteAxios(reqMap));
+        return rtnMap;
     }
 
     // 특정 댓글 삭제하기(비밀번호 일치)
@@ -133,16 +147,4 @@ public class BoardController {
         rtnMap.put("delete", commentService.deletePassword(reqMap));
         return rtnMap;
     }
-
-    // 수정 시, 수정 전 값들 기억하기
-    @PostMapping("/modify/remember")
-    @ResponseBody
-    public Map<String, Object> modifyRemember(@RequestBody Map<String, Object> reqMap){
-        Map<String, Object> rtnMap = new HashMap<String, Object>();
-        rtnMap.put("modify", commentService.modifyRemember(reqMap));
-        return rtnMap;
-    }
-
-
-
 }

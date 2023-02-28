@@ -74,70 +74,53 @@
             document.body.appendChild(divEl);
         }
 
-        // 동적 생성 => 답글 작성 버튼을 눌렀을 때
-        const writeComment = document.querySelectorAll('.writeComment');
-        const writeCommentSize = writeComment.length;
-
         // 현재 게시판 번호를 가져오기
         let path = location.pathname;
         let board_id = path.split('/')[2];
 
 
-        for(let i = 0; i<writeCommentSize; i++){
-            let comment = writeComment[i];
-            comment.addEventListener("click", function(){
-                let id = comment.id
-                let depth = parseInt(comment.dataset.depth);
-                createElement();
-
-                // 동적 생성 => 답글 작성 버튼을 눌렀을 때
-                document.getElementById("write").addEventListener("click", async function(){
-
-                    try{
-                        let comment_writer = document.getElementById('comment_writer').value;
-                        let comment_content = document.getElementById('comment_content').value;
-                        let comment_password = document.getElementById("comment_password").value;
-
-                        // 답글 생성하기
-                        await axios.post(`/list/addComment/axios/${board_id}`,
-                            {
-
-                                parent_id : id,
-                                comment_writer : comment_writer,
-                                comment_content : comment_content,
-                                board_id : board_id,
-                                depth : depth+1,
-                                comment_password : comment_password,
-                            },
-                            {
-                                "Content-Type" : `application/json`,
-                            },
-                        )
-                    }
-                    catch (e){
-                        alert(e);
-                    }
-                })
-            })
+        const axiosConfig = {
+            headers:{
+                "Content-Type": "application/json"
+            }
         }
+
+        //등록 버튼을 눌렀을 때
+        $(document).on("click", ".writeComment", async (e) => {
+            let id = $(e.target).attr("id");
+            let depth = $(`#${id}`).data("depth");
+            // console.log(`depth : ${JSON.stringify(depth)}`);
+            createElement();
+
+            $(document).on("click", "#write", async (e) => {
+                let comment_writer = document. getElementById('comment_writer').value;
+                let comment_content = document.getElementById('comment_content').value;
+                let comment_password = document.getElementById("comment_password").value;
+
+                // 답글 생성하기
+                const {data} = await axios.post(`/list/addComment/axios/${board_id}`, {parent_id: id, comment_writer, comment_content, board_id, depth: depth+1, comment_password}, axiosConfig);
+
+                if(!data.add=='Y'){
+                    alert("생성 실패")
+                    return;
+                }
+
+                alert('생성 완료')
+                location.reload();
+            })
+        })
 
         // 삭제 버튼을 눌렀을 때
         $(document).on("click",".deleteComment", async (e)=>{
             let comment_password = prompt("비밀번호를 입력하세요", "");
             let idCheck = $(e.target).attr("id");
 
-            const axiosConfig = {
-                headers:{
-                    "Content-Type": "application/json"
-                }
-            }
-
             // 패스워드가 맞다면 댓글 삭제
             const {data} = await axios.post("/delete/password", {idCheck, board_id, comment_password}, axiosConfig);
 
-            console.log(`data : ${JSON.stringify(data.delete)}`)
+            // console.log(`data : ${JSON.stringify(data.delete)}`)
 
-            if (!data.delete=='Y') {
+            if (!data.delete=="Y") {
                 alert('삭제 실패');
                 return;
             }
@@ -151,8 +134,9 @@
         $(document).on("click", ".alterComment", async function(e){
             createElement();
             let id = $(e.target).attr("id");
-            const {data:data2} = await axios.post('/modify/remember' ,{comment_id : id, comment_sequence : board_id});
-            console.log(`data2 : ${JSON.stringify(data2.modify)}`);
+            const {data:data2} = await axios.post('/modify/remember' ,{comment_id : id, comment_sequence : board_id}, axiosConfig);
+
+            // console.log(`data2 : ${JSON.stringify(data2.modify)}`);
 
             // 수정 버튼 누를 시, 전에 입력했던 값 input 창에 출력하기
             const rtnData = data2.modify;
@@ -168,8 +152,17 @@
                 let comment_password = document.getElementById('comment_password').value;
 
                 // 답글 수정하기
-                const {data:data1} = await axios.post(`/modify/comment/${board_id}` , {comment_writer, comment_content, comment_password, comment_id : id, comment_sequence : board_id});
-                console.log(`data1 : ${data1.}`)
+                const {data} = await axios.post(`/modify/comment/${board_id}` , {comment_writer, comment_content, comment_password, comment_id : id, comment_sequence : board_id}, axiosConfig);
+                // console.log(`data : ${JSON.stringify(data.modify)}`)
+
+                if(!data.modify=="Y"){
+                    alert("수정 실패")
+                    return;
+                }
+
+                alert('수정 완료')
+
+                location.reload();
             })
         })
 

@@ -79,8 +79,9 @@
         }
 
         const {data} = await axios.post("/delete/axios", {ids}, axiosConfig);
+        console.log(`data : ${JSON.stringify(data.deleteAxios)}`)
 
-        if (!data.rtn=='Y') {
+        if (!data.deleteAxios=='Y') {
             alert('삭제 실패');
             return;
         }
